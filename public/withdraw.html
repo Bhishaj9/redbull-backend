@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Withdraw - Redbull</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Page-local small tweaks (won't affect other pages) */
+    .tabs-row { display:flex; gap:10px; margin:14px 0; }
+    .tab-btn { flex:1; padding:10px; border-radius:10px; border:none; cursor:pointer; font-weight:700; }
+    .tab-btn.inactive { background:#fff; color:#0b3b7a; box-shadow:0 6px 14px rgba(0,0,0,0.06); }
+    .tab-btn.active { background:#06326a; color:#fff; }
+
+    .card { background:#fff; border-radius:14px; padding:16px; box-shadow:0 10px 24px rgba(0,0,0,0.06); margin-bottom:16px; }
+    .field { background:#f7f7f7; padding:12px; border-radius:10px; display:flex; align-items:center; gap:12px; margin:8px 0; }
+    .field input { border:0; outline:none; background:transparent; width:100%; font-size:16px; }
+    .label { margin:8px 0 4px 0; color:#333; font-weight:600; }
+
+    .primary-btn { width:100%; padding:12px; border-radius:10px; border:none; background:#06326a; color:#fff; font-weight:700; cursor:pointer; }
+    .ghost-btn { width:100%; padding:12px; border-radius:10px; border:1px solid rgba(6,50,106,0.12); background:#fff; color:#06326a; font-weight:700; cursor:pointer; }
+
+    .small-note { font-size:13px; color:#666; margin-top:8px; }
+
+    footer.bottom-nav .nav-link { text-decoration:none; color:#06326a; }
+    footer.bottom-nav .nav-link.active { color:#06326a; }
+
+    /* page scroll / container sizing */
+    html,body{height:100%}
+    body{margin:0;padding-bottom:80px; overflow-y:auto; -webkit-font-smoothing:antialiased;}
+    .container{width:94%; max-width:920px; margin:12px auto; padding:0 12px; box-sizing:border-box;}
+
+    /* desktop/mobile spacing */
+    @media(max-width:420px){
+      .card { padding:14px; }
+      .field input { font-size:15px; }
+      .tab-btn { padding:12px; font-size:14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- App header + back button -->
+  <header class="app-header" style="position:sticky;top:0;z-index:50; display:flex; align-items:center;">
+    <button id="backBtn" aria-label="Back" 
+      style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:10px; margin-left:0;">
+      ←
+    </button>
+
+    <div class="title">Withdraw</div>
+  </header>
+
+  <div class="container">
+
+    <!-- Tabs -->
+    <div class="tabs-row" role="tablist" aria-label="Recharge/Withdraw tabs">
+      <button id="rchTab" class="tab-btn inactive" data-target="recharge.html" aria-selected="false">
+        <span aria-hidden="true">📥</span>&nbsp; Recharge
+      </button>
+      <button id="withTab" class="tab-btn active" aria-selected="true">
+        <span aria-hidden="true">💸</span>&nbsp; Withdraw
+      </button>
+    </div>
+
+    <!-- Withdraw card -->
+    <div class="card" role="region" aria-label="Withdraw form" id="withdrawCard">
+      <div class="label">Amount</div>
+      <div class="field" aria-hidden="false">
+        <div style="font-size:18px;">₹</div>
+        <input id="amountInput" type="number" min="0" placeholder="Enter Amount" inputmode="numeric" />
+      </div>
+
+      <div class="small-note">Balance : <strong id="balanceText">₹ 0.00</strong></div>
+
+      <div class="label" style="margin-top:12px;">Withdrawal Password</div>
+      <div class="field">
+        <div style="font-size:18px;">🔒</div>
+        <input id="withdrawPass" type="password" placeholder="Enter Withdrawal Password" />
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        <button id="withdrawBtn" class="primary-btn" aria-live="polite">Withdraw 0</button>
+      </div>
+    </div>
+
+    <!-- Bank details card -->
+    <div class="card" role="region" aria-label="Bank details" id="bankCard">
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <div class="label">Real Name</div>
+          <input id="bankName" class="field" style="padding:10px;" placeholder="Enter your real name" />
+        </div>
+
+        <div>
+          <div class="label">IFSC</div>
+          <input id="bankIFSC" class="field" style="padding:10px;" placeholder="Enter IFSC" />
+        </div>
+
+        <div>
+          <div class="label">Bank Account</div>
+          <input id="bankAccount" class="field" style="padding:10px;" placeholder="Enter your bank account number" />
+        </div>
+
+        <div>
+          <div class="label">Number</div>
+          <input id="bankMobile" class="field" style="padding:10px;" placeholder="Enter mobile/number" />
+        </div>
+
+        <button id="bindBankBtn" class="ghost-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+          <span>⚙</span> Bind Bank Card
+        </button>
+      </div>
+    </div>
+
+    <!-- Submit button moved below bank details as requested -->
+    <div style="width:94%; max-width:920px; margin:0 auto 30px; box-sizing:border-box;">
+      <button id="submitBtn" class="primary-btn" style="display:block;">Submit</button>
+    </div>
+
+  </div>
+
+  <!-- Bottom nav -->
+  <footer class="bottom-nav" role="navigation" aria-label="Bottom navigation">
+    <a href="home.html" class="nav-link">Plan</a>
+    <a href="share.html" class="nav-link">Share</a>
+    <a href="team.html" class="nav-link">Team</a>
+    <a href="my.html" class="nav-link">My</a>
+  </footer>
+
+  <script>
+    /* ====== small compatibility wrappers (use your project's functions if present) ====== */
+    const USER_KEY = "lp_users_v1";
+    const SESSION_KEY = "lp_session_v1";
+    const WITHDRAW_KEY = "lp_withdraw_requests_v1";
+
+    const readUsers = window.readUsers || function(){
+      try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); } catch(e){ return []; }
+    };
+    const writeUsers = window.writeUsers || function(u){ localStorage.setItem(USER_KEY, JSON.stringify(u || [])); };
+    const getSession = window.getSession || function(){ try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); } catch(e){ return null; } };
+    const readWithdrawRequests = window.readWithdrawRequests || function(){ try { return JSON.parse(localStorage.getItem(WITHDRAW_KEY) || "[]"); } catch(e){ return []; } };
+    const writeWithdrawRequests = window.writeWithdrawRequests || function(list){ localStorage.setItem(WITHDRAW_KEY, JSON.stringify(list || [])); };
+
+    /* ====== DOM refs ====== */
+    const backBtn = document.getElementById('backBtn');
+    const rchTab = document.getElementById('rchTab');
+    const withdrawBtn = document.getElementById('withdrawBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const bindBankBtn = document.getElementById('bindBankBtn');
+    const amountInput = document.getElementById('amountInput');
+    const withdrawPass = document.getElementById('withdrawPass');
+    const balanceText = document.getElementById('balanceText');
+
+    const bankName = document.getElementById('bankName');
+    const bankIFSC = document.getElementById('bankIFSC');
+    const bankAccount = document.getElementById('bankAccount');
+    const bankMobile = document.getElementById('bankMobile');
+
+    /* ====== navigation helpers ====== */
+    function safeNavigate(url) {
+      if (/^(https?:)?\/\//.test(url)) { window.location.href = url; return; }
+      fetch(url, { method: 'HEAD' }).then(res => {
+        if (res.ok) window.location.href = url;
+        else alert('Page not available: ' + url);
+      }).catch(() => {
+        try { window.location.href = url; } catch(e) { alert('Unable to open: ' + url); }
+      });
+    }
+    backBtn.addEventListener('click', () => { if (history.length > 1) history.back(); else safeNavigate('home.html'); });
+    rchTab.addEventListener('click', () => safeNavigate('recharge.html'));
+    bindBankBtn.addEventListener('click', () => safeNavigate('bindbank.html'));
+    document.querySelectorAll('footer.bottom-nav .nav-link').forEach(a => {
+      a.addEventListener('click', function (e) { e.preventDefault(); safeNavigate(a.getAttribute('href')); });
+    });
+
+    /* ====== UI helpers ====== */
+    function updateWithdrawLabel(){ const val = Number(amountInput.value) || 0; withdrawBtn.textContent = 'Withdraw ' + val; }
+
+    function loadUserBankAndBalanceToUI(){
+      const session = getSession();
+      const phone = session ? session.phone : null;
+      const users = readUsers();
+      const user = users.find(u => u.phone === phone);
+      if(user){
+        balanceText.textContent = "₹ " + (user.wallet || 0).toFixed(2);
+        bankName.value = user.bankName || "";
+        bankIFSC.value = user.bankIFSC || "";
+        bankAccount.value = user.bankAccount || "";
+        bankMobile.value = user.bankMobile || "";
+      } else {
+        balanceText.textContent = "₹ 0.00";
+      }
+    }
+
+    /* ====== Save bank details into user object ====== */
+    function saveBankDetails(){
+      const session = getSession();
+      if(!session || !session.phone){ alert("Please login to bind bank details."); return false; }
+      const users = readUsers();
+      const idx = users.findIndex(u => u.phone === session.phone);
+      if(idx === -1){ alert("User not found."); return false; }
+      users[idx].bankName = bankName.value.trim();
+      users[idx].bankIFSC = bankIFSC.value.trim();
+      users[idx].bankAccount = bankAccount.value.trim();
+      users[idx].bankMobile = bankMobile.value.trim();
+      writeUsers(users);
+      return true;
+    }
+
+    /* ====== Withdraw logic with new behaviour:
+         - If user.withdrawPass is empty, first entered password will be saved (after confirm)
+         - Otherwise validate as before
+         - Request created and stored; wallet not deducted until admin approves
+    ====== */
+    withdrawBtn.addEventListener('click', () => {
+      const amount = Number(amountInput.value) || 0;
+      let pass = withdrawPass.value.trim();
+
+      if (amount <= 0) return alert('Enter an amount greater than 0.');
+      if (!pass) return alert('Enter withdrawal password.');
+
+      const session = getSession();
+      if(!session || !session.phone) return alert('Please login first.');
+
+      const users = readUsers();
+      const idx = users.findIndex(x => x.phone === session.phone);
+      if(idx === -1) return alert('User not found.');
+
+      const u = users[idx];
+
+      // If user has no withdrawPass set, save this one after confirmation
+      if(!u.withdrawPass || u.withdrawPass === ""){
+        if(!confirm("You don't have a withdrawal password set. Do you want to set the entered password as your withdrawal password?")) return;
+        u.withdrawPass = pass;
+        writeUsers(users);
+      }
+
+      // now validate
+      if(pass !== (u.withdrawPass || "")) {
+        return alert("Invalid withdrawal password.");
+      }
+
+      if(amount > (u.wallet || 0)) return alert('Invalid amount or insufficient funds.');
+
+      const reqs = readWithdrawRequests();
+      const id = "wr-" + Date.now() + "-" + Math.floor(Math.random()*900+100);
+      const req = { id, phone: u.phone, amount, status: "pending", createdAt: Date.now(), processedAt: null, processedBy: null, note: "" };
+      reqs.unshift(req);
+      writeWithdrawRequests(reqs);
+
+      alert("Withdrawal request placed for ₹" + amount + ". It will be processed by admin.");
+      amountInput.value = "";
+      withdrawPass.value = "";
+      updateWithdrawLabel();
+      loadUserBankAndBalanceToUI();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    /* ====== Submit button behavior ======
+       Save bank details; if user had no withdrawPass, set it from the provided input (after confirmation).
+       Create withdraw request (same as Withdraw). Submit is now below bank details.
+    ====== */
+    submitBtn.addEventListener('click', () => {
+      // first save bank details
+      if (!saveBankDetails()) return;
+      loadUserBankAndBalanceToUI();
+
+      const amount = Number(amountInput.value) || 0;
+      let pass = withdrawPass.value.trim();
+
+      if (amount <= 0) { alert("Enter amount before submitting."); amountInput.focus(); return; }
+      if (!pass) { alert("Enter withdrawal password."); withdrawPass.focus(); return; }
+
+      const session = getSession();
+      if(!session || !session.phone) { alert("Please login first."); return; }
+
+      const users = readUsers();
+      const idx = users.findIndex(u => u.phone === session.phone);
+      if(idx === -1) return alert("User not found.");
+      const user = users[idx];
+
+      if(!user.withdrawPass || user.withdrawPass === ""){
+        if(!confirm("You have no withdrawal password. Save entered password as withdrawal password?")) return;
+        user.withdrawPass = pass;
+        writeUsers(users);
+      }
+
+      if(pass !== (user.withdrawPass || "")) return alert("Invalid withdrawal password.");
+      if(amount > (user.wallet || 0)) return alert("Insufficient wallet balance.");
+
+      const reqs = readWithdrawRequests();
+      const id = "wr-" + Date.now() + "-" + Math.floor(Math.random()*900+100);
+      const req = { id, phone: user.phone, amount, status: "pending", createdAt: Date.now(), processedAt: null, processedBy: null, note: "" };
+      reqs.unshift(req);
+      writeWithdrawRequests(reqs);
+
+      alert("Bank details saved & withdrawal request submitted for ₹" + amount);
+      amountInput.value = "";
+      withdrawPass.value = "";
+      updateWithdrawLabel();
+      loadUserBankAndBalanceToUI();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    /* ====== Bind bank button: only saves bank details ====== */
+    document.getElementById('bindBankBtn').addEventListener('click', () => {
+      if(saveBankDetails()){
+        alert("Bank details saved.");
+        loadUserBankAndBalanceToUI();
+        const rect = document.getElementById('withdrawCard').getBoundingClientRect();
+        const offset = window.pageYOffset + rect.top - 80;
+        window.scrollTo({ top: offset, behavior: 'smooth' });
+      }
+    });
+
+    /* ====== Initial load ====== */
+    amountInput.addEventListener('input', updateWithdrawLabel);
+    document.addEventListener('DOMContentLoaded', () => {
+      loadUserBankAndBalanceToUI();
+      updateWithdrawLabel();
+    });
+  </script>
+
+</body>
+</html>

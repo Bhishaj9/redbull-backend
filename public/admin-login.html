@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Login - Red Bull</title>
+  <link rel="stylesheet" href="admin-style.css" />
+</head>
+
+<body class="admin-login-page">
+  <main class="admin-card">
+    <h1>Admin Login</h1>
+
+    <label for="adminEmail">Email</label>
+    <input id="adminEmail" type="email" value="admin@site.com" />
+
+    <label for="adminPass">Password</label>
+    <input id="adminPass" type="password" value="admin123" />
+
+    <button id="adminLoginBtn" class="btn primary">Sign in</button>
+
+    <p class="note">Default admin: <strong>admin@site.com</strong> / <strong>admin123</strong></p>
+  </main>
+
+  <script>
+    // simple client-only admin auth; change creds here if you want
+    const ADMIN_CRED = { email: "admin@site.com", pass: "admin123" };
+
+    document.getElementById("adminLoginBtn").addEventListener("click", () => {
+      const e = document.getElementById("adminEmail").value.trim();
+      const p = document.getElementById("adminPass").value;
+      if (e === ADMIN_CRED.email && p === ADMIN_CRED.pass) {
+        // store a flag so admin.html knows we're logged in
+        sessionStorage.setItem("lp_admin_auth", JSON.stringify({ email: e, ts: Date.now() }));
+        window.location.href = "admin.html";
+      } else {
+        alert("Invalid admin credentials");
+      }
+    });
+
+    // allow pressing Enter
+    ["adminEmail", "adminPass"].forEach(id => {
+      document.getElementById(id).addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter") document.getElementById("adminLoginBtn").click();
+      });
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login - Redbull</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* KEEP login-page layout exactly as you had it */
+    body.login-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: url("assets/images/bg.jpg") center/cover no-repeat fixed;
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .center-card {
+      width: 92%;
+      max-width: 420px !important;
+      background: white;
+      padding: 26px 24px;
+      border-radius: 18px;
+      box-shadow: 0 16px 34px rgba(0,0,0,0.18);
+      z-index: 99;
+      box-sizing: border-box;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+
+    .tab {
+      font-size: 20px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      color: #333;
+      padding-bottom: 6px;
+    }
+
+    .tab.active {
+      border-bottom: 3px solid #0b3d91;
+    }
+
+    .form {
+      display: none;
+    }
+
+    .form.active {
+      display: block;
+    }
+
+    .input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #e6e6e6;
+      padding: 10px 12px;
+      border-radius: 10px;
+      box-sizing: border-box;
+    }
+
+    .input-wrap.phone { padding-left: 8px; }
+    .input-wrap .country { font-weight:600; margin-right:6px; }
+    .input-wrap input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 15px;
+    }
+
+    .eye {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      padding: 0 6px;
+    }
+
+    .primary.full {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(180deg,#0b3d91,#06307a);
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
+    .small.center { text-align:center; color:#666; margin-top:12px; font-size:13px; }
+  </style>
+</head>
+
+<body class="login-page">
+
+  <main class="center-card">
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" data-target="login">Login</button>
+      <button class="tab" data-target="register">Register</button>
+    </div>
+
+    <!-- LOGIN -->
+    <section id="login" class="form active">
+      <div class="input-wrap phone">
+        <span class="country">+91</span>
+        <input id="loginPhone" type="tel" placeholder="Enter phone number" />
+      </div>
+
+      <div class="input-wrap">
+        <input id="loginPass" type="password" placeholder="Enter password" />
+        <button class="eye" type="button">Show</button>
+      </div>
+
+      <button class="primary full" id="loginBtn" type="button">Login</button>
+      <p class="small center">Invite code: <strong>f6c05036</strong></p>
+    </section>
+
+    <!-- REGISTER -->
+    <section id="register" class="form">
+      <div class="input-wrap phone">
+        <span class="country">+91</span>
+        <input id="regPhone" type="tel" placeholder="Enter phone number" />
+      </div>
+
+      <div class="input-wrap">
+        <input id="regPass" type="password" placeholder="Enter password" />
+        <button class="eye" type="button">Show</button>
+      </div>
+
+      <div class="input-wrap">
+        <input id="regPass2" type="password" placeholder="Confirm password" />
+        <button class="eye" type="button">Show</button>
+      </div>
+
+      <div class="input-wrap">
+        <input id="regWithdraw" type="password" placeholder="Enter withdrawal password" />
+        <button class="eye" type="button">Show</button>
+      </div>
+
+      <div class="input-wrap">
+        <input id="regInvite" type="text" placeholder="Invite code (optional)" value="f6c05036" />
+      </div>
+
+      <button class="primary full" id="registerBtn" type="button">Register</button>
+    </section>
+
+  </main>
+
+  <!-- Razorpay -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <!-- SIMPLE LOGIN-REGISTER SCRIPT -->
+  <script>
+    const $ = id => document.getElementById(id);
+
+    // Tabs
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+
+        const target = tab.dataset.target;
+        document.querySelectorAll(".form").forEach(f => {
+          f.classList.toggle("active", f.id === target);
+        });
+      });
+    });
+
+    // Eye toggle
+    document.querySelectorAll(".eye").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const input = btn.previousElementSibling && btn.previousElementSibling.tagName === "INPUT"
+          ? btn.previousElementSibling
+          : btn.parentElement.querySelector("input");
+        if (!input) return;
+        const isPass = input.type === "password";
+        input.type = isPass ? "text" : "password";
+        btn.textContent = isPass ? "Hide" : "Show";
+      });
+    });
+
+    // Local storage helpers
+    function readUsers() { return JSON.parse(localStorage.getItem("lp_users_v1") || "[]"); }
+    function writeUsers(u) { localStorage.setItem("lp_users_v1", JSON.stringify(u)); }
+    function findUser(phone) { return readUsers().find(x => x.phone === phone); }
+    function setSession(phone) { localStorage.setItem("lp_session_v1", JSON.stringify({ phone })); }
+
+    // Register — improved checks and clear inputs on success
+    $("registerBtn").addEventListener("click", () => {
+      const phone = ($("regPhone").value || "").trim();
+      const pass = ($("regPass").value || "");
+      const pass2 = ($("regPass2").value || "");
+      const wp = ($("regWithdraw").value || "").trim();
+      const invite = ($("regInvite").value || "").trim() || "f6c05036";
+
+      if (!phone || !pass || !pass2 || !wp) {
+        alert("Please fill all fields.");
+        return;
+      }
+      if (pass !== pass2) {
+        alert("Passwords do not match.");
+        return;
+      }
+      if (phone.length < 6) {
+        alert("Enter a valid phone number.");
+        return;
+      }
+
+      const users = readUsers();
+      if (users.find(u => u.phone === phone)) {
+        alert("Phone already registered. Please login.");
+        document.querySelector('.tab[data-target="login"]').click();
+        return;
+      }
+
+      users.push({ phone, pass, withdrawPass: wp, wallet: 0, plans: [], inviteCode: invite });
+      writeUsers(users);
+
+      // clear registration fields
+      $("regPhone").value = "";
+      $("regPass").value = "";
+      $("regPass2").value = "";
+      $("regWithdraw").value = "";
+      $("regInvite").value = "f6c05036";
+
+      alert("Registered successfully (local). Please login now.");
+      document.querySelector('.tab[data-target="login"]').click();
+    });
+
+    // Login — after successful login redirect to home (popup will appear on home)
+    $("loginBtn").addEventListener("click", () => {
+      const phone = ($("loginPhone").value || "").trim();
+      const pass = ($("loginPass").value || "").trim();
+
+      if (!phone || !pass) {
+        alert("Enter login details.");
+        return;
+      }
+
+      if (phone === "admin" && pass === "admin@123") {
+        window.location.href = "admin.html";
+        return;
+      }
+
+      const user = findUser(phone);
+      if (!user || user.pass !== pass) {
+        alert("Invalid credentials. Please check your phone and password.");
+        return;
+      }
+
+      setSession(phone);
+
+      // Redirect to home — popup will be handled by home.html on load
+      window.location.href = "home.html";
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Home - Redbull</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Non-destructive UI polish — preserves all IDs and hooks */
+    body { margin:0;font-family:Inter, Arial, sans-serif;background:#f7f5f4;color:#222 }
+    .app-header{ position:sticky; top:0; background:linear-gradient(90deg,#0b3d91,#08306a); color:#fff; display:flex; justify-content:space-between; align-items:center; padding:12px 18px; z-index:150 }
+    .title{ font-weight:700 }
+    .wallet{ font-weight:600 }
+    .container{ max-width:1100px;margin:10px auto;padding:0 16px; box-sizing:border-box }
+    .banner-wrap .banner{ border-radius:12px; overflow:hidden; box-shadow:0 8px 30px rgba(10,30,80,0.06) }
+    .menu-row .menu-card{ display:inline-flex; align-items:center; gap:8px; padding:10px 12px; background:#fff; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.04); text-decoration:none; color:#16325c; font-weight:700 }
+    .tabs-row .tab-switch{ padding:8px 12px; border-radius:10px; border:0; background:transparent; cursor:pointer; color:#16325c; font-weight:700 }
+    .tabs-row .tab-switch.active{ background:#fff; box-shadow: 0 8px 22px rgba(0,0,0,0.04) }
+
+    /* Plans list kept same classes but slightly tightened layout */
+    #plansList{ margin-top:12px }
+    .plans-list .plan{ background:#fff;border-radius:12px;padding:12px;margin:12px 0; box-shadow:0 8px 24px rgba(0,0,0,0.06); display:flex; gap:12px; align-items:center }
+    .plans-list .plan img{ width:140px; height:100px; object-fit:cover; border-radius:8px }
+    .plans-list .plan h3{ margin:0 0 6px 0 }
+    .plans-list .plan p{ margin:0; color:#666 }
+    .plans-list .plan button{ padding:8px 12px; border-radius:8px; border:none; background:#0b3d91; color:#fff; cursor:pointer; font-weight:800 }
+
+    .floating-nav{ position:fixed; left:50%; transform:translateX(-50%); bottom:14px; z-index:120 }
+    .floating-inner{ display:flex; gap:8px; background:rgba(255,255,255,0.98); border-radius:40px; padding:8px 10px; box-shadow:0 18px 40px rgba(10,30,80,0.12) }
+    .floating-link{ padding:8px 14px; border-radius:28px; text-decoration:none; color:#0b3d91; font-weight:700; cursor:pointer }
+
+    /* modal basics (preserve class/ID) */
+    .modal-backdrop{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.45); z-index:200 }
+    .modal{ background:#fff; width:92%; max-width:520px; padding:18px; border-radius:14px; box-shadow:0 24px 60px rgba(0,0,0,0.4) }
+
+    /* small responsive tweaks */
+    @media (max-width:720px) {
+      .plans-list .plan{ flex-direction:column; align-items:stretch }
+      .plans-list .plan img{ width:100%; height:180px; border-radius:10px }
+      .floating-inner{ bottom:18px; left:8px; transform:none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Auth check using local session key (preserves your localStorage-based flow) -->
+  <script>
+    function ensureAuthLocal() {
+      try {
+        const sess = JSON.parse(localStorage.getItem('lp_session_v1') || 'null');
+        if (!sess || !sess.phone) {
+          window.location.href = 'index.html';
+          return null;
+        }
+        return sess;
+      } catch (e) {
+        window.location.href = 'index.html';
+        return null;
+      }
+    }
+  </script>
+
+  <header class="app-header">
+    <div class="title">Redbul Income</div>
+    <div class="wallet" id="walletDisplay">Wallet: ₹0</div>
+  </header>
+
+  <div class="container">
+    <div class="banner-wrap">
+      <div class="banner" role="img" aria-label="Top banner" style="height:220px;background-image:url('assets/images/home.jpg');background-size:cover;background-position:center;"></div>
+    </div>
+
+    <nav class="menu-row" aria-label="Main menu" style="display:flex;gap:12px;margin-top:12px">
+      <a href="recharge.html" class="menu-card">⤴ Recharge</a>
+      <a href="withdraw.html" class="menu-card">💳 Withdraw</a>
+      <a href="share.html" class="menu-card">💬 Online</a>
+      <a href="javascript:void(0)" id="menuChannel" class="menu-card">✈️ Channel</a>
+    </nav>
+
+    <div class="tabs-row" style="display:flex;gap:10px;margin-top:10px">
+      <button id="dailyTab" class="tab-switch active">Daily income</button>
+      <button id="vipTab" class="tab-switch">VIP income</button>
+    </div>
+
+    <!-- Plans container (kept ID intact) -->
+    <section id="plansList" class="plans-list" aria-label="Plans list"></section>
+
+    <section class="dashboard-section">
+      <div class="dash-header"><h3>Dashboard</h3></div>
+      <div id="dashboardList" class="dashboard-list"></div>
+    </section>
+  </div>
+
+  <!-- Floating nav (preserve IDs) -->
+  <nav class="floating-nav" role="navigation" aria-label="Primary navigation">
+    <div class="floating-inner" role="group">
+      <a href="javascript:void(0);" class="floating-link" id="nav-plan">Plan</a>
+      <a href="share.html" class="floating-link" id="nav-share">Share</a>
+      <a href="team.html" class="floating-link active" id="nav-team">Team</a>
+      <a href="profile.html" class="floating-link" id="nav-my">My</a>
+    </div>
+  </nav>
+
+  <!-- Welcome modal (auto-open on first visit to home after login) -->
+  <div id="welcomeModal" style="display:none">
+    <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-label="Welcome">
+        <button id="modalClose" style="position:absolute;right:12px;top:10px">✕</button>
+        <h3>Welcome</h3>
+
+        <!-- paragraph content as provided -->
+        <p style="white-space:pre-wrap;line-height:1.45;color:#222;font-size:14px;">
+Billions of energy drinkers worldwide. In fact, redbull is the first most popular non-alcoholic beverage after water. As a world-leading energy drink brand, Redbull ® takes a significant responsibility towards the ingredients in our energy drink.
+
+Sustainability is a crucial responsibility regardless of company size (our parent company, Redbull energy drink, is the world's largest  energy drink brand ). But we also see sustainability as a tremendous opportunity-because we can help create a better future for our planet. It starts with a can  of redbull drink.
+
+Inner beauty is paramount.
+
+People care about the food they eat, and we care equally about the ingredients in our energy drink . We firmly believe that energy drink should be beneficial to health and are sourced responsibly, ensuring quality without sacrificing the environment.
+        </p>
+
+        <div style="margin-top:12px; display:flex; gap:10px; justify-content:flex-end; align-items:center;">
+          <button id="openChannel" class="channel-btn" style="background:#fff;color:#0b3d91;border:1px solid #0b3d91;">Open Channel Link</button>
+          <button id="joinContinue" class="channel-btn">Join & Continue</button>
+        </div>
+
+        <div id="channelLinkPopup" style="display:none;margin-top:10px;">
+          <div style="display:flex;gap:8px;align-items:center">
+            <a id="telegramLink" href="https://t.me/+JIO3U521MQVhZDg9" target="_blank">https://t.me/+JIO3U521MQVhZDg9</a>
+            <button id="copyChannelBtn" class="small-copy-btn">Copy</button>
+          </div>
+          <div id="copyStatus" style="display:none;color:green">Copied</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Razorpay script (kept and placed before main script) -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <!-- your script.js (preserved). Ensure path is correct for your project -->
+  <script src="/script.js"></script>
+
+  <script>
+    // Open welcome modal automatically when home loads after login.
+    (function(){
+      // ensure local session and auth
+      const sess = JSON.parse(localStorage.getItem('lp_session_v1') || 'null');
+      if (!sess || !sess.phone) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Show modal once per session (or every visit if you prefer)
+      try {
+        if (!sess.seenWelcomeOnHome) {
+          const wrapper = document.getElementById('welcomeModal');
+          if (wrapper) wrapper.style.display = 'block';
+          // mark seen so it doesn't pop repeatedly (you can remove this if you want repeat)
+          sess.seenWelcomeOnHome = true;
+          localStorage.setItem('lp_session_v1', JSON.stringify(sess));
+        }
+      } catch (e) {
+        // fail silently
+      }
+
+      // hook modal buttons (non-destructive)
+      const modalWrapper = document.getElementById('welcomeModal');
+      const closeBtn = document.getElementById('modalClose');
+      const openChannel = document.getElementById('openChannel');
+      const joinBtn = document.getElementById('joinContinue');
+      const linkEl = document.getElementById('telegramLink');
+      const copyBtn = document.getElementById('copyChannelBtn');
+      const channelPopup = document.getElementById('channelLinkPopup');
+      const copyStatus = document.getElementById('copyStatus');
+
+      if (closeBtn) closeBtn.addEventListener('click', () => {
+        if (modalWrapper) modalWrapper.style.display = 'none';
+      });
+
+      if (openChannel && channelPopup) {
+        openChannel.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          channelPopup.style.display = channelPopup.style.display === 'block' ? 'none' : 'block';
+        });
+      }
+
+      if (joinBtn) {
+        joinBtn.addEventListener('click', () => {
+          // open telegram and close modal
+          window.open(linkEl.href, '_blank', 'noopener');
+          if (modalWrapper) modalWrapper.style.display = 'none';
+        });
+      }
+
+      if (copyBtn && linkEl) {
+        copyBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(linkEl.href);
+            if (copyStatus) { copyStatus.style.display = 'block'; copyStatus.textContent = 'Copied'; setTimeout(()=> copyStatus.style.display = 'none',2000); }
+          } catch (e) { alert('Copy failed'); }
+        });
+      }
+
+      // menuChannel button also opens the same link popup/modal for convenience
+      document.getElementById('menuChannel')?.addEventListener('click', () => {
+        const wrapper = document.getElementById('welcomeModal');
+        if (wrapper) wrapper.style.display = 'block';
+      });
+
+      // populate plans + dashboard using functions from your script.js (non-destructive)
+      try {
+        if (window.BUY_FLOW && typeof window.BUY_FLOW.populatePlansList === 'function') {
+          window.BUY_FLOW.populatePlansList();
+        }
+        if (window.BUY_FLOW && typeof window.BUY_FLOW.pageInit === 'function') {
+          window.BUY_FLOW.pageInit();
+        }
+      } catch (e) { /* ignore */ }
+    })();
+  </script>
+</body>
+</html>

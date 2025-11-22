@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin - Redbull</title>
+
+  <style>
+    *{ margin:0; padding:0; box-sizing:border-box; font-family:Inter, Arial, sans-serif; }
+    :root{
+      --accent: #0b4db6;
+      --bg: #f5f5f5;
+      --card: #fff;
+      --muted: #666;
+      --gap: 14px;
+    }
+
+    html { font-size: 16px; }
+    @media (min-width:1200px){ html { font-size: 17px; } }
+    @media (max-width:420px){ html { font-size: 15px; } }
+
+    body{
+      background: var(--bg);
+      color:#222;
+      padding:16px;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.4;
+    }
+    .hidden{ display:none; }
+
+    .topbar{
+      width:100%;
+      background:var(--accent);
+      color:#fff;
+      padding:12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border-radius:10px;
+      gap:12px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+    .brand{ font-size:1.05rem; font-weight:700; letter-spacing:0.2px; }
+    .top-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+    .btn{ padding:8px 12px; background:#eee; border:none; border-radius:8px; cursor:pointer; font-size:0.95rem; }
+    .btn:active{ transform:translateY(1px); }
+    .btn.primary{ background:var(--accent); color:#fff; box-shadow:0 6px 18px rgba(11,77,182,0.12); }
+
+    /* Grid: responsive single column on small screens */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+      gap:var(--gap);
+    }
+    .panel{ background:var(--card); padding:14px; border-radius:12px; box-shadow:0 6px 20px rgba(18,18,18,0.06); }
+    .panel.wide { grid-column: 1 / -1; } /* Full width */
+    .panel h3{ margin-bottom:10px; font-size:1rem; }
+    .muted{ color:var(--muted); font-size:0. nine rem; margin-bottom:8px; }
+
+    input, select, textarea{ width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #e6e6e6; font-size:0.95rem; }
+    .row{ display:flex; flex-direction:column; gap:10px; margin-bottom:12px; }
+
+    /* Scrollable Lists */
+    .scroll-list {
+      max-height: 48vh;
+      overflow-y: auto;
+      border: 1px solid #f1f1f1;
+      border-radius: 10px;
+      background: #fafafa;
+      padding: 8px;
+    }
+
+    /* Users */
+    /* increased min width so user cards expand and cover right side empty space on wide screens */
+    #usersListInner{ display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:12px; }
+    .user-card{ display:flex; gap:12px; align-items:center; padding:10px; border-radius:10px; background:linear-gradient(180deg,#fafafa,#f5f5f5); border:1px solid #f0f0f0; cursor:pointer; transition:transform .12s ease, box-shadow .12s ease; }
+    .user-card:hover{ transform:translateY(-4px); box-shadow:0 8px 30px rgba(14,14,14,0.06); }
+    .avatar{ flex:0 0 56px; height:56px; width:56px; border-radius:12px; display:inline-grid; place-items:center; background:#eee; font-weight:700; color:#fff; font-size:18px; overflow:hidden; }
+    .user-meta{ display:flex; flex-direction:column; min-width:0; flex:1 1 auto; }
+    .user-name{ font-weight:700; font-size:0.98rem; color:#111; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .user-email{ font-size:0. nine rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .user-phone{ font-size:0. nine rem; color:var(--muted); margin-top:4px; }
+
+    /* Plans area */
+    .tabbar{ display:flex; gap:8px; margin:8px 0 14px 0; flex-wrap:wrap; }
+    .tab{ padding:8px 12px; border-radius:8px; background:#f4f4f4; border:1px solid #eee; cursor:pointer; font-weight:600; }
+    .tab.active{ background:var(--accent); color:#fff; box-shadow:0 8px 20px rgba(11,77,182,0.08); }
+    .plans-grid{ display:grid; gap:12px; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); margin-top:10px; }
+    .plan-card{ background:#fff; border-radius:10px; padding:12px; border:1px solid #eee; box-shadow:0 6px 14px rgba(12,12,12,0.04); display:flex; flex-direction:column; gap:8px; }
+    .plan-title{ font-weight:700; font-size:1rem; }
+    .plan-meta{ color:var(--muted); font-size:0. nine rem; }
+    .plan-actions{ margin-top:8px; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; }
+
+    .plans-scroll { overflow-y: auto; border-radius:8px; padding:6px; background:transparent; max-height:48vh; }
+
+    .all-plans-wrapper { border-radius: 8px; padding: 6px; background: transparent; overflow-y: auto; max-height:48vh; }
+
+    .box-fixed { min-height: 280px; display: flex; gap: 12px; align-items: stretch; flex-wrap:wrap; }
+    .box-left{ flex: 1 1 55%; display:flex; flex-direction:column; gap:12px; }
+    .box-right{ flex: 1 1 45%; display:flex; flex-direction:column; gap:12px; }
+
+    .withdraw-card{ display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px; border-radius:8px; border:1px solid #eee; background:#fff; margin-bottom:8px; flex-wrap:wrap; }
+    .withdraw-info{ display:flex; gap:12px; align-items:center; min-width:0; }
+    .withdraw-meta{ display:flex; flex-direction:column; min-width:0; }
+    .status{ font-size:13px; padding:6px 10px; border-radius:999px; }
+    .status.pending{ background:#fff6e6; color:#8b3d2e; border:1px solid #f0d6c3; }
+    .status.approved{ background:#e6ffef; color:#2f855a; border:1px solid #cdebd6; }
+    .status.declined{ background:#fff0f0; color:#c43a2c; border:1px solid #f4c6c6; }
+
+    /* Modal */
+    .modal{ position:fixed; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; padding:18px; z-index:60; }
+    .modal.hidden { display:none !important; }
+    .modal-card{ width:100%; max-width:900px; background:var(--card); border-radius:12px; padding:18px; box-shadow:0 30px 80px rgba(8,8,8,0.28); display:grid; grid-template-columns:160px 1fr; gap:16px; align-items:start; }
+    .modal-left{ display:flex; flex-direction:column; gap:10px; align-items:center; }
+    .modal-avatar{ width:140px; height:140px; border-radius:14px; overflow:hidden; display:grid; place-items:center; font-size:36px; font-weight:800; color:#fff; background-size:cover; background-position:center; }
+    .modal-right h2{ margin-bottom:6px; font-size:1.1rem; }
+    .modal-right p{ margin-bottom:8px; color:var(--muted); font-size:0.95rem; }
+    .modal-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .chip{ padding:8px 12px; border-radius:999px; background:#fafafa; border:1px solid #eee; font-size:13px; color:#333; }
+    .modal-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:14px; grid-column:1/-1; }
+    .close-ghost{ background:transparent; border:1px solid #ddd; padding:8px 12px; border-radius:8px; cursor:pointer; }
+
+    /* New: make the Users panel span two columns on larger screens so it takes the empty right space */
+    #usersPanel { transition: all .12s ease; }
+    @media (min-width:900px){
+      /* span two columns to cover adjacent empty area */
+      #usersPanel { grid-column: span 2; }
+    }
+
+    /* logout confirm modal (small) */
+    .confirm-modal-card{ width:100%; max-width:420px; background:var(--card); border-radius:10px; padding:16px; box-shadow:0 20px 60px rgba(8,8,8,0.18); display:flex; flex-direction:column; gap:12px; align-items:stretch; text-align:left; }
+    .confirm-actions{ display:flex; gap:8px; justify-content:flex-end; }
+
+    /* toast */
+    .toast-wrap{ position:fixed; right:18px; bottom:18px; z-index:120; display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
+    .toast{ background:#111; color:#fff; padding:10px 14px; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,0.2); max-width:320px; font-size:0.95rem; opacity:0; transform:translateY(8px); transition: all .22s ease; }
+    .toast.show{ opacity:1; transform:translateY(0); }
+
+    @media (max-width:900px){
+      .modal-card{ grid-template-columns:1fr; padding:14px; }
+      .modal-avatar{ width:100px; height:100px; font-size:28px; }
+      .box-fixed{ flex-direction:column; }
+      .box-left, .box-right{ flex: 1 1 auto; width:100%; }
+      .plans-grid{ grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); }
+      .panel.wide{ grid-column: 1 / -1; }
+      /* on small screens revert users inner grid to original narrower widths */
+      #usersListInner{ grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); }
+    }
+    @media (max-width:420px){
+      .user-card{ padding:8px; gap:8px; }
+      .avatar{ width:48px; height:48px; }
+      .btn{ padding:10px; font-size:0.95rem; }
+      .topbar{ padding:10px; gap:8px; }
+      .toast-wrap{ left:12px; right:12px; bottom:12px; align-items:center; }
+      .toast{ max-width:100%; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">Redbull - Admin</div>
+      <div class="top-actions">
+        <!-- Refresh UI button removed as requested -->
+        <button id="logoutBtn" class="btn">Logout</button>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="panel">
+        <h3>Quick actions</h3>
+        <div class="row">
+          <button id="runPayouts" class="btn">Run Payouts (apply due daily payments)</button>
+          <!-- refreshUI button removed per request -->
+        </div>
+        <h4>Totals</h4>
+        <div id="totals" class="muted">Users: 12 • Active Plans: 3 • Withdrawals: 2</div>
+      </section>
+
+      <!-- users panel: given an id so we can expand its width only -->
+      <section id="usersPanel" class="panel" style="width: 1070px;">
+        <h3>Users</h3>
+        <div class="muted">Click a user to view full details in a modal.</div>
+        <div id="usersList" class="scroll-list" aria-live="polite">
+          <div id="usersListInner"></div>
+        </div>
+      </section>
+
+      <section class="panel wide">
+        <h3>Purchases / Plans</h3>
+        <div class="muted">Switch between Plans and Purchases. All details are scrollable.</div>
+
+        <div class="tabbar" role="tablist" aria-label="Plans and Purchases tabs">
+          <button id="tabPlans" class="tab active" role="tab" aria-selected="true">Plans</button>
+          <button id="tabPurchases" class="tab" role="tab" aria-selected="false">Purchases</button>
+        </div>
+
+        <div class="box-fixed" id="plansPurchasesBox">
+          <div class="box-left" id="boxLeft">
+            <div id="plansLeftContent">
+              <h4 style="margin-top:0">Normal Plans</h4>
+              <div class="plans-scroll" id="normalPlansWrapper">
+                <div id="normalPlans" class="plans-grid"></div>
+              </div>
+
+              <h4 style="margin-top:12px">VIP Plans</h4>
+              <div class="plans-scroll" id="vipPlansWrapper">
+                <div id="vipPlansGrid" class="plans-grid"></div>
+              </div>
+            </div>
+            <div id="purchasesLeftContent" style="display:none">
+              <h4 style="margin-top:0">Top Purchases (compact)</h4>
+              <div id="purchasesCompact" class="scroll-list"></div>
+            </div>
+          </div>
+
+          <div class="box-right" id="boxRight">
+            <div id="purchasesRightContent">
+              <h4 style="margin-top:0">Purchases (detailed)</h4>
+              <div id="purchasesList" class="scroll-list"></div>
+            </div>
+            <div id="plansRightContent" style="display:none">
+              <h4 style="margin-top:0">All Plans (detailed)</h4>
+              <div id="allPlansDetailedWrapper" class="all-plans-wrapper">
+                <div id="allPlansDetailed"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel wide">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px;">
+          <div>
+            <h3>Manage Plans</h3>
+            <input id="planTitle" placeholder="Title" />
+            <input id="planPrice" placeholder="Price" type="number" />
+            <input id="planDaily" placeholder="Daily payout" type="number" />
+            <input id="planDays" placeholder="Days (or leave blank for timer)" type="number" />
+            <input id="planTimerHours" placeholder="Timer hours (only for timer type)" type="number" />
+            <select id="planType">
+              <option value="buy">Normal (buy)</option>
+              <option value="timer">Timer</option>
+            </select>
+            <label style="font-size:13px;margin-bottom:8px;display:block;">
+              <input id="planIsVip" type="checkbox" style="margin-right:8px;vertical-align:middle"> Add as VIP plan
+            </label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button id="addPlanBtn" class="btn primary">Add Plan</button>
+              <button id="resetForm" class="btn">Reset</button>
+            </div>
+            <div class="muted">Edit or delete plans from Plans tab.</div>
+          </div>
+
+          <div>
+            <h3>Withdraw Requests</h3>
+            <div class="muted">Approve or decline user withdrawal requests.</div>
+            <div id="withdrawList" class="scroll-list">No pending requests</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- User Modal -->
+  <div id="userModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalName" aria-hidden="true">
+    <div class="modal-card" role="document">
+      <div class="modal-left">
+        <div id="modalAvatar" class="modal-avatar" aria-hidden="true"></div>
+        <div style="text-align:center; font-size:13px; color:var(--muted);">Profile</div>
+      </div>
+      <div class="modal-right">
+        <h2 id="modalName">Name</h2>
+        <p id="modalEmail">email@example.com</p>
+        <p id="modalPhone">+91 00000 00000</p>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <div id="modalPlan" class="btn" style="background:#fafafa;border:1px solid #eee">Plan: —</div>
+          <div id="modalWallet" class="btn" style="background:#fafafa;border:1px solid #eee">Wallet: ₹0</div>
+        </div>
+        <div style="margin-top:12px; color:var(--muted); font-size:14px;" id="modalExtra">
+          Joined: — <br/> Last login: —
+        </div>
+        <div class="modal-actions">
+          <button id="modalClose" class="btn">Close</button>
+          <button id="modalBlock" class="btn">Block user</button>
+          <button id="modalDelete" class="btn primary">Delete user</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logout confirm modal -->
+  <div id="logoutModal" class="modal hidden" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="confirm-modal-card" role="document" aria-labelledby="logoutTitle">
+      <div style="font-weight:700; font-size:1rem;" id="logoutTitle">Confirm logout</div>
+      <div style="color:var(--muted); font-size:0.95rem;">Are you sure you want to logout? This will remove local data for this app.</div>
+      <div class="confirm-actions">
+        <button id="logoutCancel" class="btn">Cancel</button>
+        <button id="logoutConfirm" class="btn primary">Yes, logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toastWrap" class="toast-wrap" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

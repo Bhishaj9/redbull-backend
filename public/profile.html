@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My - Redbull</title>
+
+  <style>
+    :root {
+      --accent: #0b3d91;
+      --muted: #f2f2f2;
+      --card: #ffffff;
+      --text: #222;
+      --bottom-nav-height: 64px;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: var(--muted);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: var(--bottom-nav-height);
+      /* full-page background image */
+      background-image: url('assets/images/bg.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    /* Back button */
+    .back-btn {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #333;
+      z-index: 120;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Banner */
+    .top-banner {
+      width: 100%;
+      min-height: 220px;
+      padding: 22px 18px;
+      box-sizing: border-box;
+      color: #fff;
+      background-color: #f1c94a;
+      /* fallback */
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      position: relative;
+    }
+
+    .container {
+      width: 94%;
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .profile-row {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 20px;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+      flex-shrink: 0;
+    }
+
+    .user-meta {
+      flex: 1;
+    }
+
+    .user-id {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0 0 8px 0;
+      text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+    }
+
+    .vip-badge {
+      background: rgba(0, 0, 0, 0.18);
+      padding: 6px 10px;
+      border-radius: 999px;
+      display: inline-block;
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    /* Stats */
+    .stats-row {
+      margin-top: 14px;
+      display: flex;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .stat-card {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+      min-height: 72px;
+    }
+
+    .stat-value {
+      font-weight: 800;
+      color: var(--accent);
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: #666;
+    }
+
+    /* Menu list */
+    main.menu-section {
+      margin-top: 16px;
+      margin-bottom: 120px;
+    }
+
+    /* reduced bottom margin so logout is visible above bottom nav */
+    .menu-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.04);
+      margin: 12px 0;
+      cursor: pointer;
+    }
+
+    .menu-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .menu-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #fff, #f7efe9);
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .menu-text {
+      font-weight: 700;
+      color: #333;
+      font-size: 15px;
+    }
+
+    .chev {
+      color: #b58b6f;
+      font-size: 20px;
+    }
+
+    /* Bottom nav - text only, close spacing (pas-pas), centered pill */
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 14px;
+      z-index: 60;
+      box-sizing: border-box;
+      pointer-events: none;
+      height: auto;
+    }
+
+    .nav-inner {
+      display: flex;
+      gap: 6px;
+      /* close spacing */
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 40px;
+      padding: 8px 10px;
+      box-shadow: 0 18px 40px rgba(10, 30, 80, 0.12);
+      pointer-events: auto;
+      min-width: 320px;
+      max-width: 92vw;
+      align-items: center;
+    }
+
+    .nav-link {
+      padding: 8px 14px;
+      border-radius: 28px;
+      text-decoration: none;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: .14s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-link.active {
+      background: linear-gradient(180deg, var(--accent), #08306a);
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(11, 39, 77, 0.16);
+      transform: translateY(-3px);
+    }
+
+    /* Focus outline for keyboard users */
+    .menu-item:focus {
+      outline: 3px solid rgba(139, 61, 46, 0.12);
+      outline-offset: 2px;
+    }
+
+    .back-btn:focus {
+      outline: 3px solid rgba(139, 61, 46, 0.16);
+      outline-offset: 2px;
+    }
+
+    @media (max-width:480px) {
+      .avatar {
+        width: 64px;
+        height: 64px;
+      }
+
+      .user-id {
+        font-size: 16px;
+      }
+
+      .stat-value {
+        font-size: 18px;
+      }
+
+      .menu-text {
+        font-size: 14px;
+      }
+
+      .top-banner {
+        padding: 18px 12px;
+        min-height: 200px;
+      }
+
+      .nav-inner {
+        min-width: 260px;
+        gap: 4px;
+        padding: 6px 8px;
+      }
+
+      .nav-link {
+        padding: 6px 10px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Back button -->
+  <button class="back-btn" id="backBtn" aria-label="Back">←</button>
+
+  <!-- Banner -->
+  <section id="banner" class="top-banner" aria-label="Profile banner">
+    <div class="container">
+      <div class="profile-row">
+        <div class="avatar" aria-hidden="true">L</div>
+        <div class="user-meta">
+          <div id="userId" class="user-id">ID : 9720446288</div>
+          <div class="vip-badge" aria-hidden="true">VIP0</div>
+        </div>
+        <div style="width:48px"></div>
+      </div>
+
+      <div class="stats-row" aria-label="Account stats">
+        <div class="stat-card" aria-label="Balance">
+          <div class="stat-value" id="balance">₹ 0</div>
+          <div class="stat-label">Balance</div>
+        </div>
+
+        <div class="stat-card" aria-label="Total income">
+          <div class="stat-value" id="totalIncome">₹ 0</div>
+          <div class="stat-label">Total income</div>
+        </div>
+
+        <div class="stat-card" aria-label="Recharge">
+          <div class="stat-value" id="rechargeVal">₹ 0</div>
+          <div class="stat-label">Recharge</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Menu items -->
+  <main class="menu-section container" style="margin-bottom: 120px; padding: 20px" role="main">
+    <div class="menu-item" id="m-devices" tabindex="0" role="button" aria-label="Devices">
+      <div class="menu-left">
+        <div class="menu-icon">▦</div>
+        <div class="menu-text">Devices</div>
+      </div>
+      <div class="chev">›</div>
+    </div>
+
+    <div class="menu-item" id="m-personal" tabindex="0" role="button" aria-label="Personal information">
+      <div class="menu-left">
+        <div class="menu-icon">👤</div>
+        <div class="menu-text">Personal information</div>
+      </div>
+      <div class="chev">›</div>
+    </div>
+
+    <div class="menu-item" id="m-income" tabindex="0" role="button" aria-label="Income details">
+      <div class="menu-left">
+        <div class="menu-icon">📋</div>
+        <div class="menu-text">Income details</div>
+      </div>
+      <div class="chev">›</div>
+    </div>
+
+    <div class="menu-item" id="m-about" tabindex="0" role="button" aria-label="About us">
+      <div class="menu-left">
+        <div class="menu-icon">🏢</div>
+        <div class="menu-text">About us</div>
+      </div>
+      <div class="chev">›</div>
+    </div>
+
+    <div class="menu-item" id="m-withdrawal" tabindex="0" role="button" aria-label="Withdrawal details">
+      <div class="menu-left">
+        <div class="menu-icon">💳</div>
+        <div class="menu-text">Withdrawal details</div>
+      </div>
+      <div class="chev">›</div>
+    </div>
+
+    <div class="menu-item" id="m-recharge" tabindex="0" role="button" aria-label="Recharge details">
+      <div class="menu-left">
+        <div class="menu-icon">⤴</div>
+        <div class="menu-text">Recharge details</div>
+      </div>
+      <div class="chev">›</div>
+    </div>
+
+    <!-- Download removed as requested -->
+
+    <div class="menu-item" id="m-logout" tabindex="0" role="button" aria-label="Log out">
+      <div class="menu-left">
+        <div class="menu-icon" style="color:#d33">⏻</div>
+        <div class="menu-text">Log out</div>
+      </div>
+      <div class="chev">›</div>
+    </div>
+  </main>
+
+  <!-- Bottom nav - text only and close together -->
+  <footer class="bottom-nav" role="navigation" aria-label="Bottom navigation">
+    <div class="nav-inner" role="group" aria-label="Main navigation">
+      <a href="home.html" class="nav-link" id="nav-plan">Plan</a>
+      <a href="share.html" class="nav-link" id="nav-share">Share</a>
+      <a href="team.html" class="nav-link" id="nav-team">Team</a>
+      <a href="my.html" class="nav-link active" id="nav-my">My</a>
+    </div>
+  </footer>
+
+  <script>
+    // Banner background (bg.jpg)
+    (function setBannerBg() {
+      const banner = document.getElementById('banner');
+      const path = 'assets/images/bg.jpg';
+      const img = new Image();
+      img.onload = function () { banner.style.backgroundImage = 'url("' + path + '")'; };
+      img.onerror = function () { console.warn('assets/images/bg.jpg not found'); };
+      img.src = path;
+    })();
+
+    // BACK BUTTON: go back if history exists, otherwise go to home
+    document.getElementById('backBtn').addEventListener('click', () => {
+      if (history.length > 1) history.back();
+      else window.location.href = 'home.html';
+    });
+
+    document.getElementById('backBtn').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') document.getElementById('backBtn').click();
+    });
+
+    // Navigation map for menu items (download removed)
+    const navMap = {
+      'm-devices': 'devices.html',
+      'm-personal': 'profile.html',
+      'm-income': 'income.html',
+      'm-about': 'about.html',
+      'm-withdrawal': 'withdraw.html',
+      'm-recharge': 'recharge.html'
+      // download entry intentionally removed
+    };
+
+    // Generic safe navigation function:
+    function safeNavigate(url) {
+      // check url exists with HEAD, else alert; if HEAD blocked or fails, attempt direct navigation
+      fetch(url, { method: 'HEAD' }).then(res => {
+        if (res.ok) window.location.href = url;
+        else alert('Page not available yet: ' + url);
+      }).catch(() => {
+        // fallback attempt
+        try { window.location.href = url; } catch (e) { alert('Unable to open: ' + url); }
+      });
+    }
+
+    // Wire up menu items (click + keyboard)
+    Object.keys(navMap).forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('click', () => safeNavigate(navMap[id]));
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') el.click(); });
+    });
+
+    // Logout: clear storage and go to login
+    (function wireLogout() {
+      const el = document.getElementById('m-logout');
+      el.addEventListener('click', () => {
+        // Clear likely auth keys — adjust if your app uses different keys
+        try {
+          localStorage.removeItem('redbull_auth');
+          localStorage.removeItem('user_token');
+        } catch (e) { }
+        alert('You are logged out.');
+        window.location.href = 'index.html';
+      });
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') el.click(); });
+    })();
+
+    // Bottom nav: highlight active and keyboard support (links already present)
+    (function highlightBottom() {
+      const links = document.querySelectorAll('.bottom-nav .nav-link');
+      const current = location.pathname.split('/').pop();
+      let matched = false;
+      links.forEach(a => {
+        if ((a.getAttribute('href') || '').endsWith(current)) { a.classList.add('active'); matched = true; }
+      });
+      if (!matched) {
+        // fallback: detect keywords in URL
+        if (/share/i.test(location.href)) document.getElementById('nav-share')?.classList.add('active');
+        else if (/team/i.test(location.href)) document.getElementById('nav-team')?.classList.add('active');
+        else if (/my/i.test(location.href) || /profile/i.test(location.href)) document.getElementById('nav-my')?.classList.add('active');
+        else document.getElementById('nav-plan')?.classList.add('active');
+      }
+    })();
+
+    // keyboard accessibility for menu items (space/enter)
+    document.querySelectorAll('.menu-item').forEach(item => {
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); }
+      });
+    });
+  </script>
+</body>
+
+</html>

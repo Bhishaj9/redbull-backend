@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Payment - Red Bull</title>
+  <meta name="theme-color" content="#7b3ecf">
+  <style>
+    /* ====== Visual tweaks kept non-destructive ======
+       - All original classnames/IDs preserved.
+       - Small polish: tighter spacing, readable fonts, subtle shadows,
+         improved buttons and focus states.
+       - Nothing functional was removed.
+    ================================================ */
+    :root {
+      --primary: #7b3ecf;
+      --muted: #f4eefe;
+      --card: #ffffff;
+      --text: #2b2b2b;
+      --accent: #6b28b3;
+      --radius: 12px;
+      --muted-text: #6b6b6b;
+      --surface: #fbf7ff;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: linear-gradient(180deg, #f6efff, #fff);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased
+    }
+
+    .top {
+      background: var(--primary);
+      color: #fff;
+      text-align: center;
+      padding: 18px 12px 22px;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      box-shadow: 0 6px 18px rgba(11, 77, 182, 0.06);
+    }
+
+    .top h2 {
+      margin: 6px 0 8px;
+      font-weight: 600;
+      font-size: 18px
+    }
+
+    .amount {
+      font-size: 40px;
+      font-weight: 800;
+      margin: 6px 0;
+      letter-spacing: 1px;
+    }
+
+    .timer {
+      font-size: 16px;
+      opacity: 0.95
+    }
+
+    .container {
+      width: 94%;
+      max-width: 760px;
+      margin: 18px auto;
+      padding-bottom: 80px
+    }
+
+    .tabs {
+      display: flex;
+      gap: 12px;
+      background: transparent;
+      margin: 12px 0
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      text-align: center;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--primary);
+      border: 1px solid rgba(11, 77, 182, 0.03)
+    }
+
+    .tab:focus {
+      outline: 2px solid rgba(107, 40, 179, 0.12)
+    }
+
+    .tab.active {
+      background: #fff;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
+      color: var(--accent)
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 12px;
+      box-shadow: 0 8px 20px rgba(16, 16, 16, 0.04)
+    }
+
+    .section-title {
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 10px
+    }
+
+    .methods {
+      display: flex;
+      gap: 12px
+    }
+
+    .method {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid rgba(107, 40, 179, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      position: relative;
+      transition: transform .08s ease
+    }
+
+    .method:hover {
+      transform: translateY(-3px)
+    }
+
+    .method .open-hint {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      font-size: 11px;
+      color: rgba(0, 0, 0, 0.45);
+      padding: 4px 6px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      border: 1px solid rgba(0, 0, 0, 0.03)
+    }
+
+    .method.active {
+      background: linear-gradient(90deg, rgba(123, 62, 207, 0.12), rgba(107, 40, 179, 0.08));
+      box-shadow: inset 0 0 0 1px rgba(107, 40, 179, 0.08)
+    }
+
+    .notice {
+      background: linear-gradient(180deg, #f7ecff, #fff);
+      border-left: 4px solid var(--accent);
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+      color: #4b2b66;
+      font-size: 14px
+    }
+
+    .upibox {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px
+    }
+
+    .upifield {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f7f2ff;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(16, 16, 16, 0.02)
+    }
+
+    .upifield .val {
+      font-weight: 700;
+      color: #111
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: 0;
+      color: var(--accent);
+      font-weight: 700;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 8px
+    }
+
+    .copy-btn:focus {
+      outline: 2px solid rgba(123, 62, 207, 0.15)
+    }
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px
+    }
+
+    .input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #eee;
+      background: #faf7ff;
+      font-size: 15px
+    }
+
+    .input:focus {
+      outline: 2px solid rgba(107, 40, 179, 0.08)
+    }
+
+    .submit {
+      background: var(--accent);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 0;
+      cursor: pointer;
+      font-weight: 800;
+      box-shadow: 0 8px 20px rgba(107, 40, 179, 0.06)
+    }
+
+    .qr-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 18px
+    }
+
+    .qr-box {
+      width: 220px;
+      height: 220px;
+      background: linear-gradient(180deg, #fff, #f1efff);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 30px rgba(90, 40, 150, 0.06)
+    }
+
+    .small {
+      font-size: 13px;
+      color: var(--muted-text)
+    }
+
+    .footer-logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 18px;
+      opacity: 0.7
+    }
+
+    .footer-logos img {
+      height: 34px;
+      display: block
+    }
+
+    /* responsive */
+    @media(max-width:420px) {
+      .amount {
+        font-size: 34px
+      }
+
+      .qr-box {
+        width: 180px;
+        height: 180px
+      }
+
+      .method .open-hint {
+        display: none;
+      }
+
+      /* small screens: hide open hint so layout stays clean */
+      .methods {
+        flex-direction: column
+      }
+
+      .form-row {
+        flex-direction: column
+      }
+
+      .submit {
+        width: 100%
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="top" role="banner">
+    <button id="back"
+      style="position:absolute;left:12px;top:12px;border:0;background:transparent;color:#fff;font-size:20px;cursor:pointer">←</button>
+    <h2>Payment Amount</h2>
+    <div class="amount" id="amountDisplay">₹480</div>
+    <div class="timer" id="timer">00:10:00</div>
+  </header>
+
+  <main class="container" role="main">
+    <!-- tabs -->
+    <div class="tabs" role="tablist">
+      <div class="tab active" id="directTab" role="tab" tabindex="0">Direct Transfer</div>
+      <div class="tab" id="scanTab" role="tab" tabindex="0">Scan QRCode</div>
+    </div>
+
+    <!-- Direct Transfer view -->
+    <section id="directView" class="card" role="region" aria-label="Direct transfer">
+      <div class="section-title">Select Payment Method</div>
+      <div class="methods" role="list">
+        <div class="method active" data-method="paytm" role="button" tabindex="0">
+          <span>Paytm</span>
+          <span class="open-hint" data-open="paytm" title="Open Paytm">Open</span>
+        </div>
+
+        <div class="method" data-method="phonepe" role="button" tabindex="0">
+          <span>Phonepe</span>
+          <span class="open-hint" data-open="phonepe" title="Open PhonePe">Open</span>
+        </div>
+      </div>
+
+      <div class="notice" role="note">
+        <strong>Payment can only be made once.</strong> Multiple payments are not valid!!!
+      </div>
+
+      <div style="margin-top:14px">
+        <div style="font-weight:800;margin-bottom:8px">1. Transfer <span id="amountInline">480</span> RS to the
+          following upi</div>
+
+        <div class="upibox">
+          <div class="upifield" aria-live="polite">
+            <div>
+              <div class="small">UPI ID</div>
+              <div class="val" id="upiId">loading@upi</div>
+            </div>
+            <div>
+              <button class="copy-btn" data-copy-target="upiId" aria-label="Copy UPI">Copy</button>
+            </div>
+          </div>
+
+          <div class="upifield">
+            <div>
+              <div class="small">Amount</div>
+              <div class="val" id="upiAmount">480 RS</div>
+            </div>
+            <div>
+              <button class="copy-btn" data-copy-target="upiAmount" aria-label="Copy Amount">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;font-weight:800">2. Submit Ref No/Reference No/UTR</div>
+
+        <div class="form-row">
+          <input id="refInput" class="input" placeholder="UTR(UPI Ref.ID)" aria-label="Reference number" />
+          <button id="submitRef" class="submit">Submit</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- QR view -->
+    <section id="qrView" class="card" role="region" aria-label="Scan QR code" style="display:none">
+      <div class="qr-area">
+        <div class="qr-box" id="qrBox">
+          <!-- Placeholder QR image (you can replace with a real QR image or canvas) -->
+          <svg width="140" height="140" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" width="140" height="140" fill="#fff" rx="8" />
+            <rect x="8" y="8" width="40" height="40" fill="#7b3ecf" />
+            <rect x="92" y="8" width="40" height="40" fill="#7b3ecf" />
+            <rect x="8" y="92" width="40" height="40" fill="#7b3ecf" />
+            <g fill="#000">
+              <rect x="56" y="8" width="10" height="10" />
+              <rect x="76" y="8" width="10" height="10" />
+              <rect x="96" y="8" width="10" height="10" />
+              <rect x="56" y="28" width="10" height="10" />
+              <rect x="56" y="48" width="10" height="10" />
+              <rect x="76" y="28" width="10" height="10" />
+              <rect x="96" y="28" width="10" height="10" />
+            </g>
+          </svg>
+        </div>
+
+        <div class="small">Scan QR code with your UPI app to pay <strong id="qrAmount">₹480</strong></div>
+      </div>
+    </section>
+
+    <div class="footer-logos" aria-hidden="true">
+      <svg width="120" height="40" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+        <rect width="120" height="40" rx="6" fill="#fff" stroke="#eee" /><text x="10" y="25" font-family="Arial"
+          font-size="12" fill="#666">UPI / BHIM</text>
+      </svg>
+    </div>
+
+  </main>
+
+  <!-- Razorpay checkout (ensure this remains present) -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script>
+    // ---- Utility: generate a pseudo-realistic random UPI ID every load ----
+    function generateRandomUPI() {
+      const bases = ['omprakash', 'arjun', 'neha', 'sanket', 'priya', 'anshu', 'rahul', 'ravi', 'meena', 'tanvi', 'user', 'payuser', 'fastpay', 'quick'];
+      const domains = ['@ptyes', '@upi', '@okaxis', '@paytm', '@ybl', '@pay', '@icici', '@sbi'];
+      const base = bases[Math.floor(Math.random() * bases.length)];
+      const digits = Math.floor(100 + Math.random() * 9000).toString();
+      const suffix = Math.random() < 0.3 ? String.fromCharCode(97 + Math.floor(Math.random() * 26)) : '';
+      const domain = domains[Math.floor(Math.random() * domains.length)];
+      return base + digits + suffix + domain;
+    }
+
+    // read amount from URL ?amount=480 or fallback
+    function getQueryParam(name) {
+      const params = new URLSearchParams(location.search);
+      return params.get(name);
+    }
+    const amount = Number(getQueryParam('amount')) || 480;
+
+    // set amount displays
+    document.getElementById('amountDisplay').textContent = '₹' + amount.toLocaleString();
+    document.getElementById('amountInline').textContent = amount;
+    document.getElementById('upiAmount').textContent = amount + ' RS';
+    document.getElementById('qrAmount').textContent = '₹' + amount;
+
+    // generate UPI id and set it
+    const upiIdEl = document.getElementById('upiId');
+    const newUpi = generateRandomUPI();
+    upiIdEl.textContent = newUpi;
+
+    // back button behaviour
+    document.getElementById('back').addEventListener('click', () => {
+      if (history.length > 1) history.back();
+      else window.location.href = 'home.html';
+    });
+
+    // tabs
+    const directTab = document.getElementById('directTab');
+    const scanTab = document.getElementById('scanTab');
+    const directView = document.getElementById('directView');
+    const qrView = document.getElementById('qrView');
+
+    directTab.addEventListener('click', () => { directTab.classList.add('active'); scanTab.classList.remove('active'); directView.style.display = 'block'; qrView.style.display = 'none'; });
+    scanTab.addEventListener('click', () => { scanTab.classList.add('active'); directTab.classList.remove('active'); qrView.style.display = 'block'; directView.style.display = 'none'; });
+    directTab.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') directTab.click(); });
+    scanTab.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') scanTab.click(); });
+
+    // methods: behavior + open provider
+    let chosenProvider = 'paytm'; // default
+    document.querySelectorAll('.method').forEach(m => {
+      const methodName = m.dataset.method;
+      const openHint = m.querySelector('.open-hint');
+
+      m.addEventListener('click', (e) => {
+        // if user clicked the "Open" hint, we handle below (separate listener)
+        if (e.target === openHint) return;
+        document.querySelectorAll('.method').forEach(x => x.classList.remove('active'));
+        m.classList.add('active');
+        chosenProvider = methodName;
+      });
+
+      // keyboard accessible
+      m.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') m.click(); });
+
+      // open hint behavior (open provider payment site in new tab)
+      if (openHint) {
+        openHint.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          openProviderPage(methodName);
+        });
+        openHint.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openProviderPage(methodName); } });
+      }
+    });
+
+    // open provider demo page in new tab (safe demo)
+    function openProviderPage(provider) {
+      // build a demo URL (these are placeholders; change to real endpoints if available)
+      const upi = encodeURIComponent(newUpi);
+      const amt = encodeURIComponent(amount);
+      let url = '';
+      if (provider === 'paytm') {
+        url = `https://paytm.com/pay?amount=${amt}&upi=${upi}`;
+      } else if (provider === 'phonepe') {
+        url = `https://www.phonepe.com/pay?amount=${amt}&upi=${upi}`;
+      } else {
+        url = `about:blank`;
+      }
+      // open in new tab
+      window.open(url, '_blank', 'noopener');
+    }
+
+    // copy buttons
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.dataset.copyTarget;
+        const el = document.getElementById(targetId);
+        if (!el) return;
+        const text = el.textContent.trim();
+        navigator.clipboard?.writeText(text).then(() => {
+          const old = btn.textContent;
+          btn.textContent = 'Copied';
+          setTimeout(() => btn.textContent = old, 1200);
+        }).catch(() => {
+          // fallback
+          const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); const old = btn.textContent; btn.textContent = 'Copied'; setTimeout(() => btn.textContent = old, 1200); } catch (e) { alert('Copy failed.'); }
+          ta.remove();
+        });
+      });
+    });
+
+    // submit reference
+    document.getElementById('submitRef').addEventListener('click', () => {
+      const ref = document.getElementById('refInput').value.trim();
+      if (!ref) { alert('Please enter transaction reference/UTR'); document.getElementById('refInput').focus(); return; }
+
+      // Mock submission: could POST to server here. For now show success and return home.
+      alert('Reference submitted: ' + ref + '\nPayment of ₹' + amount + ' under verification.\nUPI used: ' + newUpi + '\nProvider: ' + chosenProvider);
+      window.location.href = 'home.html';
+    });
+
+    // timer: 10 minutes from load (600 seconds)
+    (function startTimer(seconds) {
+      let remaining = seconds;
+      const el = document.getElementById('timer');
+      function tick() {
+        const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
+        const ss = String(remaining % 60).padStart(2, '0');
+        el.textContent = mm + ':' + ss;
+        if (remaining <= 0) {
+          clearInterval(timerId);
+          el.textContent = 'Expired';
+          document.getElementById('submitRef').disabled = true;
+          document.getElementById('submitRef').style.opacity = 0.5;
+        }
+        remaining--;
+      }
+      tick();
+      const timerId = setInterval(tick, 1000);
+    })(600);
+
+    // accessibility: allow Enter on ref input to submit
+    document.getElementById('refInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('submitRef').click(); });
+
+    // friendly fallback if clipboard not allowed
+    if (!navigator.clipboard) {
+      document.querySelectorAll('.copy-btn').forEach(b => b.title = 'Tap and hold to copy (fallback)');
+    }
+  </script>
+</body>
+
+</html>

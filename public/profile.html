@@ -5,7 +5,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>My - Redbull</title>
-
   <style>
     :root {
       --accent: #0b3d91;
@@ -24,7 +23,6 @@
       color: var(--text);
       -webkit-font-smoothing: antialiased;
       padding-bottom: var(--bottom-nav-height);
-      /* full-page background image */
       background-image: url('assets/images/bg.jpg');
       background-size: cover;
       background-position: center;
@@ -32,7 +30,6 @@
       background-attachment: fixed;
     }
 
-    /* Back button */
     .back-btn {
       position: fixed;
       top: 12px;
@@ -51,7 +48,6 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
     }
 
-    /* Banner */
     .top-banner {
       width: 100%;
       min-height: 220px;
@@ -59,7 +55,6 @@
       box-sizing: border-box;
       color: #fff;
       background-color: #f1c94a;
-      /* fallback */
       background-position: center;
       background-size: cover;
       background-repeat: no-repeat;
@@ -114,7 +109,6 @@
       font-size: 13px;
     }
 
-    /* Stats */
     .stats-row {
       margin-top: 14px;
       display: flex;
@@ -144,13 +138,11 @@
       color: #666;
     }
 
-    /* Menu list */
     main.menu-section {
       margin-top: 16px;
       margin-bottom: 120px;
     }
 
-    /* reduced bottom margin so logout is visible above bottom nav */
     .menu-item {
       display: flex;
       align-items: center;
@@ -162,6 +154,12 @@
       box-shadow: 0 10px 26px rgba(0, 0, 0, 0.04);
       margin: 12px 0;
       cursor: pointer;
+    }
+
+    .menu-item:focus,
+    .back-btn:focus {
+      outline: 3px solid rgba(139, 61, 46, 0.12);
+      outline-offset: 2px;
     }
 
     .menu-left {
@@ -193,7 +191,6 @@
       font-size: 20px;
     }
 
-    /* Bottom nav - text only, close spacing (pas-pas), centered pill */
     .bottom-nav {
       position: fixed;
       left: 50%;
@@ -208,7 +205,6 @@
     .nav-inner {
       display: flex;
       gap: 6px;
-      /* close spacing */
       background: rgba(255, 255, 255, 0.98);
       border-radius: 40px;
       padding: 8px 10px;
@@ -238,17 +234,6 @@
       color: #fff;
       box-shadow: 0 10px 30px rgba(11, 39, 77, 0.16);
       transform: translateY(-3px);
-    }
-
-    /* Focus outline for keyboard users */
-    .menu-item:focus {
-      outline: 3px solid rgba(139, 61, 46, 0.12);
-      outline-offset: 2px;
-    }
-
-    .back-btn:focus {
-      outline: 3px solid rgba(139, 61, 46, 0.16);
-      outline-offset: 2px;
     }
 
     @media (max-width:480px) {
@@ -290,16 +275,14 @@
 
 <body>
 
-  <!-- Back button -->
   <button class="back-btn" id="backBtn" aria-label="Back">←</button>
 
-  <!-- Banner -->
   <section id="banner" class="top-banner" aria-label="Profile banner">
     <div class="container">
       <div class="profile-row">
-        <div class="avatar" aria-hidden="true">L</div>
+        <div class="avatar" id="profileAvatar" aria-hidden="true">U</div>
         <div class="user-meta">
-          <div id="userId" class="user-id">ID : 9720446288</div>
+          <div id="userId" class="user-id">ID : ...</div>
           <div class="vip-badge" aria-hidden="true">VIP0</div>
         </div>
         <div style="width:48px"></div>
@@ -310,12 +293,10 @@
           <div class="stat-value" id="balance">₹ 0</div>
           <div class="stat-label">Balance</div>
         </div>
-
         <div class="stat-card" aria-label="Total income">
           <div class="stat-value" id="totalIncome">₹ 0</div>
           <div class="stat-label">Total income</div>
         </div>
-
         <div class="stat-card" aria-label="Recharge">
           <div class="stat-value" id="rechargeVal">₹ 0</div>
           <div class="stat-label">Recharge</div>
@@ -324,8 +305,7 @@
     </div>
   </section>
 
-  <!-- Menu items -->
-  <main class="menu-section container" style="margin-bottom: 120px; padding: 20px" role="main">
+  <main class="menu-section container" role="main">
     <div class="menu-item" id="m-devices" tabindex="0" role="button" aria-label="Devices">
       <div class="menu-left">
         <div class="menu-icon">▦</div>
@@ -333,7 +313,6 @@
       </div>
       <div class="chev">›</div>
     </div>
-
     <div class="menu-item" id="m-personal" tabindex="0" role="button" aria-label="Personal information">
       <div class="menu-left">
         <div class="menu-icon">👤</div>
@@ -341,7 +320,6 @@
       </div>
       <div class="chev">›</div>
     </div>
-
     <div class="menu-item" id="m-income" tabindex="0" role="button" aria-label="Income details">
       <div class="menu-left">
         <div class="menu-icon">📋</div>
@@ -349,7 +327,6 @@
       </div>
       <div class="chev">›</div>
     </div>
-
     <div class="menu-item" id="m-about" tabindex="0" role="button" aria-label="About us">
       <div class="menu-left">
         <div class="menu-icon">🏢</div>
@@ -357,7 +334,6 @@
       </div>
       <div class="chev">›</div>
     </div>
-
     <div class="menu-item" id="m-withdrawal" tabindex="0" role="button" aria-label="Withdrawal details">
       <div class="menu-left">
         <div class="menu-icon">💳</div>
@@ -365,7 +341,6 @@
       </div>
       <div class="chev">›</div>
     </div>
-
     <div class="menu-item" id="m-recharge" tabindex="0" role="button" aria-label="Recharge details">
       <div class="menu-left">
         <div class="menu-icon">⤴</div>
@@ -373,9 +348,6 @@
       </div>
       <div class="chev">›</div>
     </div>
-
-    <!-- Download removed as requested -->
-
     <div class="menu-item" id="m-logout" tabindex="0" role="button" aria-label="Log out">
       <div class="menu-left">
         <div class="menu-icon" style="color:#d33">⏻</div>
@@ -385,18 +357,16 @@
     </div>
   </main>
 
-  <!-- Bottom nav - text only and close together -->
   <footer class="bottom-nav" role="navigation" aria-label="Bottom navigation">
     <div class="nav-inner" role="group" aria-label="Main navigation">
       <a href="home.html" class="nav-link" id="nav-plan">Plan</a>
       <a href="share.html" class="nav-link" id="nav-share">Share</a>
       <a href="team.html" class="nav-link" id="nav-team">Team</a>
-      <a href="my.html" class="nav-link active" id="nav-my">My</a>
+      <a href="profile.html" class="nav-link active" id="nav-my">My</a>
     </div>
   </footer>
 
   <script>
-    // Banner background (bg.jpg)
     (function setBannerBg() {
       const banner = document.getElementById('banner');
       const path = 'assets/images/bg.jpg';
@@ -406,86 +376,56 @@
       img.src = path;
     })();
 
-    // BACK BUTTON: go back if history exists, otherwise go to home
     document.getElementById('backBtn').addEventListener('click', () => {
       if (history.length > 1) history.back();
       else window.location.href = 'home.html';
     });
 
-    document.getElementById('backBtn').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') document.getElementById('backBtn').click();
-    });
-
-    // Navigation map for menu items (download removed)
     const navMap = {
-      'm-devices': 'devices.html',
-      'm-personal': 'profile.html',
-      'm-income': 'income.html',
-      'm-about': 'about.html',
+      'm-devices': 'home.html', // Placeholder
+      'm-personal': 'bindbank.html',
+      'm-income': 'dashboard.html',
+      'm-about': 'home.html', // Placeholder
       'm-withdrawal': 'withdraw.html',
       'm-recharge': 'recharge.html'
-      // download entry intentionally removed
     };
 
-    // Generic safe navigation function:
     function safeNavigate(url) {
-      // check url exists with HEAD, else alert; if HEAD blocked or fails, attempt direct navigation
-      fetch(url, { method: 'HEAD' }).then(res => {
-        if (res.ok) window.location.href = url;
-        else alert('Page not available yet: ' + url);
-      }).catch(() => {
-        // fallback attempt
-        try { window.location.href = url; } catch (e) { alert('Unable to open: ' + url); }
+      window.location.href = url;
+    }
+
+    Object.keys(navMap).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('click', () => safeNavigate(navMap[id]));
+        el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') el.click(); });
+      }
+    });
+
+    const logoutBtn = document.getElementById('m-logout');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async () => {
+        if (confirm('Are you sure you want to logout?')) {
+          try {
+            const fetchFn = window.apiFetch || fetch;
+            await fetchFn('/api/auth/logout', { method: 'POST' });
+            window.location.href = 'index.html';
+          } catch (e) {
+            window.location.href = 'index.html';
+          }
+        }
       });
     }
 
-    // Wire up menu items (click + keyboard)
-    Object.keys(navMap).forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.addEventListener('click', () => safeNavigate(navMap[id]));
-      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') el.click(); });
-    });
-
-    // Logout: clear storage and go to login
-    (function wireLogout() {
-      const el = document.getElementById('m-logout');
-      el.addEventListener('click', () => {
-        // Clear likely auth keys — adjust if your app uses different keys
-        try {
-          localStorage.removeItem('redbull_auth');
-          localStorage.removeItem('user_token');
-        } catch (e) { }
-        alert('You are logged out.');
-        window.location.href = 'index.html';
-      });
-      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') el.click(); });
-    })();
-
-    // Bottom nav: highlight active and keyboard support (links already present)
     (function highlightBottom() {
       const links = document.querySelectorAll('.bottom-nav .nav-link');
       const current = location.pathname.split('/').pop();
-      let matched = false;
       links.forEach(a => {
-        if ((a.getAttribute('href') || '').endsWith(current)) { a.classList.add('active'); matched = true; }
+        if ((a.getAttribute('href') || '').endsWith(current)) a.classList.add('active');
       });
-      if (!matched) {
-        // fallback: detect keywords in URL
-        if (/share/i.test(location.href)) document.getElementById('nav-share')?.classList.add('active');
-        else if (/team/i.test(location.href)) document.getElementById('nav-team')?.classList.add('active');
-        else if (/my/i.test(location.href) || /profile/i.test(location.href)) document.getElementById('nav-my')?.classList.add('active');
-        else document.getElementById('nav-plan')?.classList.add('active');
-      }
     })();
-
-    // keyboard accessibility for menu items (space/enter)
-    document.querySelectorAll('.menu-item').forEach(item => {
-      item.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); }
-      });
-    });
   </script>
+  <script src="script.js"></script>
 </body>
 
 </html>

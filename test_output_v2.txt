@@ -1,0 +1,19 @@
+[dotenv@17.2.3] injecting env (9) from .env -- tip: ≡ƒ¢á∩╕Å  run anywhere with `dotenvx run -- yourcommand`
+≡ƒÜÇ STARTING USER & ADMIN SCENARIO TEST
+
+============================================================
+
+≡ƒæñ USER SCENARIO: Creating user 9934025838
+   Γ£à Register success
+   Γ£à Cookie received
+   Γ£à Login success
+   Γ¥î Recharge init failed: { message: 'Server error' }
+   Γ£à Bank details bound
+
+   Γ¥î Withdraw request error: Operation `users.findOneAndUpdate()` buffering timed out after 10000ms
+≡ƒæ« ADMIN SCENARIO: Verifying User & Withdrawal
+   Γ£à User visible in Admin Panel
+   Γ¥î User sees withdrawal status as: Not Found
+
+============================================================
+≡ƒÅü SCENARIO TEST COMPLETE

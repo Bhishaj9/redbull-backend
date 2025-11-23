@@ -1,0 +1,22 @@
+[dotenv@17.2.3] injecting env (9) from .env -- tip: ≡ƒæÑ sync secrets across teammates & machines: https://dotenvx.com/ops
+≡ƒÜÇ STARTING USER & ADMIN SCENARIO TEST
+
+============================================================
+   Γ£à Connected to DB
+
+≡ƒæñ USER SCENARIO: Creating user 9981766712
+   Γ£à Register success
+   Γ£à Cookie received
+   Γ£à Login success
+   Γ£à Recharge order created: order_1763881767632
+   Γ£à Bank details bound
+   Γ£à Withdraw requested successfully
+
+≡ƒæ« ADMIN SCENARIO: Verifying User & Withdrawal
+   Γ£à User visible in Admin Panel
+   Γ£à Withdrawal visible in Admin Panel
+   Γ£à Withdrawal Approved by Admin
+   Γ£à User sees withdrawal as PROCESSED
+
+============================================================
+≡ƒÅü SCENARIO TEST COMPLETE

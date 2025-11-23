@@ -1,0 +1,19 @@
+[dotenv@17.2.3] injecting env (9) from .env -- tip: ≡ƒ¢á∩╕Å  run anywhere with `dotenvx run -- yourcommand`
+≡ƒÜÇ STARTING USER & ADMIN SCENARIO TEST
+
+============================================================
+
+≡ƒæñ USER SCENARIO: Creating user 9933686313
+   Γ£à Register success
+   Γ£à Cookie received
+   Γ£à Login success
+   Γ¥î Recharge init failed: { message: 'planId required' }
+   Γ¥î Bind bank error: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+   Γ¥î Withdraw request failed: { message: 'Invalid withdrawal password' }
+
+≡ƒæ« ADMIN SCENARIO: Verifying User & Withdrawal
+   Γ£à User visible in Admin Panel
+   Γ¥î User check status error: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+
+============================================================
+≡ƒÅü SCENARIO TEST COMPLETE

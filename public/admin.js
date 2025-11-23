@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function getHeaders() {
     // Retrieve credentials from localStorage set by the login page
     const creds = JSON.parse(localStorage.getItem('adminCreds') || '{}');
-    const pass = creds.pass || '';
+    const pass = creds.pass;
     // If no password in localStorage, this will fail auth, which is correct.
     const token = `admin:${pass}`;
     return {
@@ -261,6 +261,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     userModal.classList.remove('hidden');
     userModal.setAttribute('aria-hidden', 'false');
+    currentUserId = user._id;
+
+    if (modalBlock) modalBlock.textContent = user.blocked ? 'Unblock User' : 'Block User';
   }
 
   function closeModal() {
@@ -270,6 +273,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
   modalClose.addEventListener('click', closeModal);
   userModal.addEventListener('click', (e) => { if (e.target === userModal) closeModal(); });
+
+  // Block/Delete Logic
+  let currentUserId = null;
+
+  if (modalBlock) {
+    modalBlock.onclick = async () => {
+      if (!currentUserId) return;
+      if (!confirm('Are you sure you want to block/unblock this user?')) return;
+      const res = await apiFetch(`${API_BASE}/users/${currentUserId}/block`, { method: 'POST' });
+      if (res) {
+        showToast(res.message);
+        closeModal();
+        fetchData();
+      }
+    };
+  }
+
+  if (modalDelete) {
+    modalDelete.onclick = async () => {
+      console.log('Delete button clicked, currentUserId:', currentUserId);
+      if (!currentUserId) {
+        console.error('No currentUserId set!');
+        return;
+      }
+      if (!confirm('Are you sure you want to DELETE this user? This action cannot be undone.')) {
+        console.log('Delete cancelled by user');
+        return;
+      }
+      console.log('Calling DELETE endpoint for user:', currentUserId);
+      const res = await apiFetch(`${API_BASE}/users/${currentUserId}`, { method: 'DELETE' });
+      console.log('Delete response:', res);
+      if (res) {
+        showToast(res.message);
+        closeModal();
+        fetchData();
+      } else {
+        console.error('Delete failed: no response from server');
+      }
+    };
+  }
 
   function updateTotals() {
     totalsEl.textContent = `Users: ${users.length} • Plans: ${PLANS_CONFIG.length} • Withdrawals: ${withdrawRequests.length}`;
@@ -299,11 +342,89 @@ document.addEventListener('DOMContentLoaded', () => {
   tabPlans.addEventListener('click', () => activateTab('plans'));
   tabPurchases.addEventListener('click', () => activateTab('purchases'));
 
+  // Logout Logic
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      logoutModal.classList.remove('hidden');
+    });
+  }
+  if (logoutCancel) {
+    logoutCancel.addEventListener('click', () => {
+      logoutModal.classList.add('hidden');
+    });
+  }
+  if (logoutConfirm) {
+    logoutConfirm.addEventListener('click', () => {
+      localStorage.removeItem('adminCreds');
+      window.location.href = 'admin-login.html';
+    });
+  }
+
   // Initial Load
+  console.log('Admin JS: Fetching data...');
   fetchData();
   activateTab('plans');
 
-  // Refresh button (if exists)
-  const refreshBtn = document.getElementById('refreshBtn');
-  if (refreshBtn) refreshBtn.onclick = fetchData;
+  // Run Payouts
+  const runPayoutsBtn = document.getElementById('runPayouts');
+  if (runPayoutsBtn) {
+    runPayoutsBtn.addEventListener('click', async () => {
+      if (!confirm('Run daily payouts for all users? This will add daily earnings to wallets.')) return;
+      runPayoutsBtn.disabled = true;
+      runPayoutsBtn.textContent = 'Processing...';
+      const res = await apiFetch(`${API_BASE}/payouts`, { method: 'POST' });
+      if (res) {
+        showToast(res.message);
+        fetchData();
+      }
+      runPayoutsBtn.disabled = false;
+      runPayoutsBtn.textContent = 'Run Payouts (apply due daily payments)';
+    });
+  }
+
+  // Add Plan
+  const addPlanBtn = document.getElementById('addPlanBtn');
+  const resetFormBtn = document.getElementById('resetForm');
+
+  if (addPlanBtn) {
+    addPlanBtn.addEventListener('click', async () => {
+      const title = document.getElementById('planTitle').value;
+      const price = Number(document.getElementById('planPrice').value);
+      const daily = Number(document.getElementById('planDaily').value);
+      const days = Number(document.getElementById('planDays').value);
+      const type = document.getElementById('planType').value;
+      const timerHours = Number(document.getElementById('planTimerHours').value);
+      const isVip = document.getElementById('planIsVip').checked;
+
+      if (!title || !price || !daily) {
+        alert('Please fill in Title, Price, and Daily payout');
+        return;
+      }
+
+      const body = { name: title, price, daily, days, type, timerHours, diamond: isVip };
+      const res = await apiFetch(`${API_BASE}/plans`, {
+        method: 'POST',
+        body: JSON.stringify(body)
+      });
+
+      if (res) {
+        showToast('Plan added successfully');
+        fetchData();
+        // clear form
+        if (resetFormBtn) resetFormBtn.click();
+      }
+    });
+  }
+
+  if (resetFormBtn) {
+    resetFormBtn.addEventListener('click', () => {
+      document.getElementById('planTitle').value = '';
+      document.getElementById('planPrice').value = '';
+      document.getElementById('planDaily').value = '';
+      document.getElementById('planDays').value = '';
+      document.getElementById('planTimerHours').value = '';
+      document.getElementById('planType').value = 'buy';
+      document.getElementById('planIsVip').checked = false;
+    });
+  }
 });

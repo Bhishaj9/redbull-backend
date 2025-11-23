@@ -195,4 +195,32 @@ router.get('/team', async (req, res) => {
   }
 });
 
+/******************
+ * UPDATE BANK DETAILS
+ ******************/
+router.post('/bank', async (req, res) => {
+  try {
+    const token = req.cookies?.token;
+    if (!token) return res.status(401).json({ message: 'Unauthorized' });
+
+    const data = jwt.verify(token, process.env.JWT_SECRET);
+    const { name, account, ifsc, bankName } = req.body;
+
+    if (!name || !account || !ifsc || !bankName) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const user = await User.findOneAndUpdate(
+      { phone: data.phone },
+      { bankDetails: { name, account, ifsc, bankName } },
+      { new: true }
+    );
+
+    return res.json({ message: 'Bank details updated', bankDetails: user.bankDetails });
+  } catch (e) {
+    console.error('bank update error:', e);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

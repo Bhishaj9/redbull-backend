@@ -1,0 +1,20 @@
+[dotenv@17.2.3] injecting env (9) from .env -- tip: ΓÜÖ∩╕Å  write to custom object with { processEnv: myObject }
+≡ƒÜÇ STARTING USER & ADMIN SCENARIO TEST
+
+============================================================
+   Γ£à Connected to DB
+
+≡ƒæñ USER SCENARIO: Creating user 9934067032
+   Γ£à Register success
+   Γ£à Cookie received
+   Γ£à Login success
+   Γ¥î Recharge init failed: { message: 'Server error' }
+   Γ£à Bank details bound
+   Γ¥î Withdraw request failed: { message: 'Invalid withdrawal password' }
+
+≡ƒæ« ADMIN SCENARIO: Verifying User & Withdrawal
+   Γ£à User visible in Admin Panel
+
+   Γ¥î User sees withdrawal status as: Not Found
+============================================================
+≡ƒÅü SCENARIO TEST COMPLETE

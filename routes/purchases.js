@@ -42,6 +42,12 @@ const razor = new Razorpay({
  * requires auth
  * returns: { key, amount, orderId, purchaseId }
  */
+/**
+ * POST /api/purchases/create-order
+ * body: { planId, amount }
+ * requires auth
+ * returns: { key, amount, orderId, purchaseId }
+ */
 router.post('/create-order', auth, async (req, res) => {
   // ===== DEBUG LOGS (added) =====
   console.log('--- create-order called ---');
@@ -50,22 +56,42 @@ router.post('/create-order', auth, async (req, res) => {
   // ===== end debug logs =====
 
   try {
-    const { planId } = req.body;
-    if (!planId) return res.status(400).json({ message: 'planId required' });
+    const { planId, amount } = req.body;
+    let amountPaise = 0;
+    let type = 'plan';
 
-    const plan = await Plan.findOne({ id: planId });
-    if (!plan) return res.status(400).json({ message: 'Invalid plan' });
-
-    // amount in paise
-    const amountPaise = Math.round((plan.price || 0) * 100);
+    if (planId && planId !== 'recharge') {
+      const plan = await Plan.findOne({ id: planId });
+      if (!plan) return res.status(400).json({ message: 'Invalid plan' });
+      amountPaise = Math.round((plan.price || 0) * 100);
+    } else if (amount) {
+      // Recharge flow
+      amountPaise = Math.round(Number(amount) * 100);
+      type = 'recharge';
+      if (amountPaise <= 0) return res.status(400).json({ message: 'Invalid amount' });
+    } else {
+      return res.status(400).json({ message: 'Plan ID or Amount required' });
+    }
 
     // create razorpay order
-    const order = await razor.orders.create({
-      amount: amountPaise,
-      currency: "INR",
-      receipt: "rb_" + Date.now(),
-      payment_capture: 1
-    });
+    // create razorpay order
+    let order;
+    if (process.env.RAZORPAY_KEY_ID === 'rzp_test_xxx') {
+      // Mock for testing
+      order = {
+        id: 'order_' + Date.now(),
+        currency: 'INR',
+        receipt: 'rb_' + Date.now(),
+        status: 'created'
+      };
+    } else {
+      order = await razor.orders.create({
+        amount: amountPaise,
+        currency: "INR",
+        receipt: "rb_" + Date.now(),
+        payment_capture: 1
+      });
+    }
 
     console.log("create-order OK -> order.id=", order && order.id, "amount(paise)=", amountPaise, "user=", req.user && (req.user.phone || req.user.id));
     console.log("full razorpay order object:", JSON.stringify(order, null, 2));
@@ -77,18 +103,19 @@ router.post('/create-order', auth, async (req, res) => {
       currency: order.currency || 'INR',
       receipt: order.receipt || null,
       status: 'created',
-      metadata: { planId },
+      metadata: { planId: type === 'plan' ? planId : null, type },
       createdBy: req.user && (req.user.id || req.user.phone) || null
     });
 
     // Save pending order on User so we can map verify -> plan
     await User.findOneAndUpdate(
-      { phone: req.user.phone }, // adjust selector if your JWT stores user id instead of phone
+      { phone: req.user.phone },
       {
         $push: {
           pendingOrders: {
             orderId: order.id,
-            planId: planId,
+            planId: type === 'plan' ? planId : null,
+            type,
             amount: amountPaise, // paise
             createdAt: new Date()
           }
@@ -106,7 +133,7 @@ router.post('/create-order', auth, async (req, res) => {
 
   } catch (err) {
     console.error("create-order error:", err);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error", error: err.message, stack: err.stack });
   }
 });
 
@@ -166,20 +193,20 @@ router.post('/verify', auth, async (req, res) => {
     const pending = (user.pendingOrders || []).find(po => po.orderId === razorpay_order_id);
     if (!pending) {
       console.warn('verify: pending order not found on user for orderId', razorpay_order_id);
-      // still OK: we already updated Purchase, return verified true but warn
     }
 
-    // Determine plan details
+    // Determine type and details
+    const type = pending ? pending.type : (purchase && purchase.metadata && purchase.metadata.type) || 'plan';
     const planId = pending ? pending.planId : (purchase && purchase.metadata && purchase.metadata.planId);
-    const plan = planId ? await Plan.findOne({ id: planId }) : null;
     const price = pending ? (pending.amount || 0) / 100 : (purchase ? (purchase.amount || 0) / 100 : 0);
 
     // Build the purchase record to push into user's purchases array
     const purchaseRecord = {
       id: "purch_" + Date.now() + "_" + Math.floor(Math.random() * 900 + 100),
       planId: planId || null,
-      planName: plan ? plan.name : (planId || 'unknown'),
+      planName: planId || (type === 'recharge' ? 'Wallet Recharge' : 'unknown'),
       price,
+      type,
       razorpay: {
         paymentId: razorpay_payment_id,
         orderId: razorpay_order_id,
@@ -202,21 +229,31 @@ router.post('/verify', auth, async (req, res) => {
       await Purchase.findByIdAndUpdate(purchase._id, { userRef: user._id, purchaseRecordSnapshot: purchaseRecord });
     }
 
-    // Credit plan to user
-    if (plan) {
-      const planRecord = {
-        ...plan.toObject(),
-        purchaseDate: new Date(),
-        expiryDate: new Date(Date.now() + (plan.days * 24 * 60 * 60 * 1000)),
-        purchaseId: purchase._id
-      };
-
+    // Handle fulfillment
+    if (type === 'recharge') {
+      // Credit wallet
       await User.findByIdAndUpdate(user._id, {
-        $push: { plans: planRecord }
+        $inc: { wallet: price }
       });
-      console.log(`Plan ${plan.name} credited to user ${user.phone}`);
-    } else {
-      console.warn('Plan not found for crediting, planId:', planId);
+      console.log(`Wallet recharged by ${price} for user ${user.phone}`);
+    } else if (planId) {
+      // Credit plan
+      const plan = await Plan.findOne({ id: planId });
+      if (plan) {
+        const planRecord = {
+          ...plan.toObject(),
+          purchaseDate: new Date(),
+          expiryDate: new Date(Date.now() + (plan.days * 24 * 60 * 60 * 1000)),
+          purchaseId: purchase._id
+        };
+
+        await User.findByIdAndUpdate(user._id, {
+          $push: { plans: planRecord }
+        });
+        console.log(`Plan ${plan.name} credited to user ${user.phone}`);
+      } else {
+        console.warn('Plan not found for crediting, planId:', planId);
+      }
     }
 
     return res.json({ verified: true, purchase: purchaseRecord, purchaseDoc: purchase || null });

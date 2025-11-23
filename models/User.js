@@ -9,6 +9,12 @@ const userSchema = new mongoose.Schema({
   plans: { type: Array, default: [] },
   team: { type: [String], default: [] }, // phone numbers of referees
   inviteCode: { type: String, default: '' },
+  bankDetails: {
+    name: String,
+    account: String,
+    ifsc: String,
+    bankName: String
+  },
   createdAt: { type: Date, default: Date.now }
 });
 

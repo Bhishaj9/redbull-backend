@@ -237,50 +237,33 @@
         style="background:#fff;border-radius:12px;padding:18px;margin-top:12px;box-shadow:0 10px 30px rgba(0,0,0,0.04);text-align:center;color:#666;">
         Loading...
       </div>
-    </div>
+      // Use apiFetch if available (from script.js), otherwise fallback to fetch
+      const fetchFn = window.apiFetch || fetch;
+      const res = await fetchFn('/api/auth/team');
 
-  </main>
+      if (!res.ok) {
+      if (res.status === 401) window.location.href = 'index.html';
+      return;
+      }
+      const data = await res.json();
 
-  <!-- floating text-only nav (replaces and removes the previous footer) -->
-  <nav class="floating-nav" role="navigation" aria-label="Main navigation">
-    <div class="floating-inner" role="group" aria-label="Primary">
-      <a href="home.html" class="floating-link" id="nav-plan">Plan</a>
-      <a href="share.html" class="floating-link" id="nav-share">Share</a>
-      <a href="team.html" class="floating-link active" id="nav-team">Team</a>
-      <a href="profile.html" class="floating-link" id="nav-my">My</a>
-    </div>
-  </nav>
+      const teamData = data.team || { level1: { size: 0, members: [] }, level2: { size: 0, members: [] }, level3: {
+      size: 0, members: [] } };
 
-  <script>
-    // Real API integration
-    async function loadTeamData() {
-      try {
-        const res = await fetch('/api/auth/team');
-        if (!res.ok) {
-          if (res.status === 401) window.location.href = 'index.html';
-          return;
-        }
-        const data = await res.json();
+      // Store globally for tab switching
+      window.currentTeamData = teamData;
 
-        // Update invite code if we had an element for it (not in this HTML, but good practice)
-        // const codeEl = document.querySelector('.invite-box .code');
-        // if (codeEl && data.inviteCode) codeEl.textContent = data.inviteCode;
-
-        const teamData = data.team || { level1: { size: 0, members: [] }, level2: { size: 0, members: [] }, level3: { size: 0, members: [] } };
-
-        // Store globally for tab switching
-        window.currentTeamData = teamData;
-
-        // Render default tab (level 1)
-        renderTeamList('level1');
+      // Render default tab (level 1)
+      renderTeamList('level1');
 
       } catch (e) {
-        console.error('Failed to load team data', e);
-        document.getElementById('teamList').innerHTML = '<div style="text-align:center;padding:20px;color:red">Failed to load team data</div>';
+      console.error('Failed to load team data', e);
+      document.getElementById('teamList').innerHTML = '<div style="text-align:center;padding:20px;color:red">Failed to
+        load team data</div>';
       }
-    }
+      }
 
-    function renderTeamList(level) {
+      function renderTeamList(level) {
       const listContainer = document.getElementById('teamList');
       const rechargeEl = document.getElementById('teamRecharge');
       const sizeEl = document.getElementById('teamSize');
@@ -288,80 +271,82 @@
       const data = (window.currentTeamData && window.currentTeamData[level]) || { size: 0, members: [] };
 
       // Update stats
-      // Note: Backend currently doesn't send total recharge, so we default to 0 or calculate if we had data
-      rechargeEl.textContent = '₹ 0';
+      rechargeEl.textContent = '₹ 0'; // Backend doesn't provide this yet
       sizeEl.textContent = data.size;
 
       listContainer.innerHTML = '';
       if (data.members.length === 0) {
-        listContainer.innerHTML = '<div style="background:#fff;border-radius:12px;padding:18px;margin-top:12px;box-shadow:0 10px 30px rgba(0,0,0,0.04);text-align:center;color:#666;">No members in this level yet.</div>';
-        return;
+      listContainer.innerHTML = '<div
+        style="background:#fff;border-radius:12px;padding:18px;margin-top:12px;box-shadow:0 10px 30px rgba(0,0,0,0.04);text-align:center;color:#666;">
+        No members in this level yet.</div>';
+      return;
       }
 
       const wrap = document.createElement('div');
       wrap.style.marginTop = '12px';
 
       data.members.forEach(m => {
-        const card = document.createElement('div');
-        card.style.background = '#fff';
-        card.style.borderRadius = '10px';
-        card.style.padding = '12px';
-        card.style.marginBottom = '10px';
-        card.style.boxShadow = '0 10px 20px rgba(0,0,0,0.04)';
+      const card = document.createElement('div');
+      card.style.background = '#fff';
+      card.style.borderRadius = '10px';
+      card.style.padding = '12px';
+      card.style.marginBottom = '10px';
+      card.style.boxShadow = '0 10px 20px rgba(0,0,0,0.04)';
 
-        const dateStr = new Date(m.joined).toLocaleDateString();
+      const dateStr = new Date(m.joined).toLocaleDateString();
 
-        card.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;">
-                          <div>
-                            <div style="font-weight:700;color:var(--accent)">User: ${m.id}</div>
-                            <div style="font-size:13px;color:#666">Joined: ${dateStr}</div>
-                          </div>
-                          <div style="text-align:right">
-                            <div style="font-weight:800;color:var(--accent)">Active</div>
-                          </div>
-                        </div>`;
-        wrap.appendChild(card);
+      card.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-weight:700;color:var(--accent)">User: ${m.id}</div>
+          <div style="font-size:13px;color:#666">Joined: ${dateStr}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:800;color:var(--accent)">Active</div>
+        </div>
+      </div>`;
+      wrap.appendChild(card);
       });
       listContainer.appendChild(wrap);
-    }
+      }
 
-    // Tab handling
-    document.querySelectorAll('.level-btn').forEach(btn => {
+      // Tab handling
+      document.querySelectorAll('.level-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.level-btn').forEach(b => {
-          b.classList.remove('active');
-          b.setAttribute('aria-selected', 'false');
-        });
-        btn.classList.add('active');
-        btn.setAttribute('aria-selected', 'true');
-
-        const level = btn.dataset.level; // level1, level2, level3
-        renderTeamList(level);
+      document.querySelectorAll('.level-btn').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-selected', 'false');
       });
-    });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
 
-    // Highlight floating nav active link based on current page
-    (function highlightFloatingNav() {
+      const level = btn.dataset.level; // level1, level2, level3
+      renderTeamList(level);
+      });
+      });
+
+      // Highlight floating nav active link based on current page
+      (function highlightFloatingNav() {
       const path = location.pathname.split('/').pop();
       const map = {
-        'home.html': 'nav-plan',
-        'share.html': 'nav-share',
-        'team.html': 'nav-team',
-        'profile.html': 'nav-my'
+      'home.html': 'nav-plan',
+      'share.html': 'nav-share',
+      'team.html': 'nav-team',
+      'profile.html': 'nav-my'
       };
       let id = map[path] || null;
       if (!id && /team/i.test(location.href)) id = 'nav-team';
       if (id) {
-        document.querySelectorAll('.floating-link').forEach(l => l.classList.remove('active'));
-        const el = document.getElementById(id);
-        if (el) el.classList.add('active');
+      document.querySelectorAll('.floating-link').forEach(l => l.classList.remove('active'));
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
       }
-    })();
+      })();
 
-    // Init
-    document.addEventListener('DOMContentLoaded', loadTeamData);
+      // Init
+      document.addEventListener('DOMContentLoaded', loadTeamData);
 
-  </script>
+      </script>
+      <script src="script.js"></script>
 
 </body>
 

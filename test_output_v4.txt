@@ -1,0 +1,20 @@
+[dotenv@17.2.3] injecting env (9) from .env -- tip: ≡ƒöæ add access controls to secrets: https://dotenvx.com/ops
+≡ƒÜÇ STARTING USER & ADMIN SCENARIO TEST
+
+============================================================
+   Γ£à Connected to DB
+
+≡ƒæñ USER SCENARIO: Creating user 9934315043
+   Γ£à Register success
+   Γ£à Cookie received
+   Γ£à Login success
+   Γ¥î Recharge init failed: { message: 'Server error' }
+   Γ£à Bank details bound
+
+   Γ¥î Withdraw request error: Cannot read properties of undefined (reading 'amount')
+≡ƒæ« ADMIN SCENARIO: Verifying User & Withdrawal
+   Γ£à User visible in Admin Panel
+   Γ¥î User sees withdrawal status as: Not Found
+
+============================================================
+≡ƒÅü SCENARIO TEST COMPLETE

@@ -13,36 +13,38 @@
     <h1>Admin Login</h1>
 
     <label for="adminEmail">Email</label>
-    <input id="adminEmail" type="email" value="admin@site.com" />
+    <input id="adminEmail" type="email" placeholder="admin@site.com" />
 
     <label for="adminPass">Password</label>
-    <input id="adminPass" type="password" value="admin123" />
+    <input id="adminPass" type="password" placeholder="Password" />
 
     <button id="adminLoginBtn" class="btn primary">Sign in</button>
 
-    <p class="note">Default admin: <strong>admin@site.com</strong> / <strong>admin123</strong></p>
+    <p class="note">Default admin: <strong>admin@site.com</strong> / <strong>admin@123</strong></p>
   </main>
 
   <script>
     // simple client-only admin auth; change creds here if you want
-    const ADMIN_CRED = { email: "admin@site.com", pass: "admin123" };
+    const ADMIN_CRED = { email: "admin@site.com", pass: "admin@123" };
 
-    document.getElementById("adminLoginBtn").addEventListener("click", () => {
-      const e = document.getElementById("adminEmail").value.trim();
-      const p = document.getElementById("adminPass").value;
-      if (e === ADMIN_CRED.email && p === ADMIN_CRED.pass) {
-        // store a flag so admin.html knows we're logged in
-        sessionStorage.setItem("lp_admin_auth", JSON.stringify({ email: e, ts: Date.now() }));
-        window.location.href = "admin.html";
-      } else {
-        alert("Invalid admin credentials");
-      }
-    });
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById("adminLoginBtn").addEventListener("click", () => {
+        const e = document.getElementById("adminEmail").value.trim();
+        const p = document.getElementById("adminPass").value;
+        if (e === ADMIN_CRED.email && p === ADMIN_CRED.pass) {
+          // store creds so admin.js can use them for API calls
+          localStorage.setItem("adminCreds", JSON.stringify({ email: e, pass: p }));
+          window.location.href = "admin.html";
+        } else {
+          alert("Invalid admin credentials");
+        }
+      });
 
-    // allow pressing Enter
-    ["adminEmail", "adminPass"].forEach(id => {
-      document.getElementById(id).addEventListener("keydown", (ev) => {
-        if (ev.key === "Enter") document.getElementById("adminLoginBtn").click();
+      // allow pressing Enter
+      ["adminEmail", "adminPass"].forEach(id => {
+        document.getElementById(id).addEventListener("keydown", (ev) => {
+          if (ev.key === "Enter") document.getElementById("adminLoginBtn").click();
+        });
       });
     });
   </script>

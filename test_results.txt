@@ -1,0 +1,38 @@
+[dotenv@17.2.3] injecting env (9) from .env -- tip: ΓÜÖ∩╕Å  override existing env vars with { override: true }
+≡ƒöì COMPREHENSIVE ADMIN PANEL TEST
+
+============================================================
+
+1∩╕ÅΓâú  HEALTH CHECK
+   Γ£à Server healthy
+
+2∩╕ÅΓâú  GET /admin/users
+   Γ£à Retrieved 5 users
+
+3∩╕ÅΓâú  GET /admin/withdraws
+   Γ£à Retrieved 3 withdrawals
+
+4∩╕ÅΓâú  GET /admin/purchases
+   Γ£à Retrieved 1 purchases
+
+5∩╕ÅΓâú  POST /admin/payouts (Run Payouts button)
+   Γ£à Payouts run successfully. Paid Γé╣0 to 0 users.
+
+6∩╕ÅΓâú  POST /admin/plans (Add Plan button)
+   Γ£à Created plan: Test Plan 1763801056152
+
+7∩╕ÅΓâú  POST /admin/users/:id/block (Block User button)
+   Γ£à User blocked
+
+8∩╕ÅΓâú  DELETE /admin/users/:id (Delete User button)
+   Γ£à User deleted
+
+9∩╕ÅΓâú  GET /plans (Plans display)
+   Γ£à Retrieved 11 plans
+
+============================================================
+
+≡ƒôè TEST RESULTS: 9 passed, 0 failed
+
+Γ£à ALL TESTS PASSED!
+============================================================

@@ -24,4 +24,9 @@ router.post('/request', auth(true), async (req, res) => {
   res.json({ message: 'Withdraw request created', id: w._id });
 });
 
+router.get('/my', auth(true), async (req, res) => {
+  const withdraws = await Withdraw.find({ phone: req.user.phone }).sort({ createdAt: -1 });
+  res.json({ withdraws });
+});
+
 module.exports = router;

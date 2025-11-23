@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -7,42 +8,145 @@
   <link rel="stylesheet" href="style.css" />
   <style>
     /* Page-local small tweaks (won't affect other pages) */
-    .tabs-row { display:flex; gap:10px; margin:14px 0; }
-    .tab-btn { flex:1; padding:10px; border-radius:10px; border:none; cursor:pointer; font-weight:700; }
-    .tab-btn.inactive { background:#fff; color:#0b3b7a; box-shadow:0 6px 14px rgba(0,0,0,0.06); }
-    .tab-btn.active { background:#06326a; color:#fff; }
+    .tabs-row {
+      display: flex;
+      gap: 10px;
+      margin: 14px 0;
+    }
 
-    .card { background:#fff; border-radius:14px; padding:16px; box-shadow:0 10px 24px rgba(0,0,0,0.06); margin-bottom:16px; }
-    .field { background:#f7f7f7; padding:12px; border-radius:10px; display:flex; align-items:center; gap:12px; margin:8px 0; }
-    .field input { border:0; outline:none; background:transparent; width:100%; font-size:16px; }
-    .label { margin:8px 0 4px 0; color:#333; font-weight:600; }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+    }
 
-    .primary-btn { width:100%; padding:12px; border-radius:10px; border:none; background:#06326a; color:#fff; font-weight:700; cursor:pointer; }
-    .ghost-btn { width:100%; padding:12px; border-radius:10px; border:1px solid rgba(6,50,106,0.12); background:#fff; color:#06326a; font-weight:700; cursor:pointer; }
+    .tab-btn.inactive {
+      background: #fff;
+      color: #0b3b7a;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+    }
 
-    .small-note { font-size:13px; color:#666; margin-top:8px; }
+    .tab-btn.active {
+      background: #06326a;
+      color: #fff;
+    }
 
-    footer.bottom-nav .nav-link { text-decoration:none; color:#06326a; }
-    footer.bottom-nav .nav-link.active { color:#06326a; }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+      margin-bottom: 16px;
+    }
+
+    .field {
+      background: #f7f7f7;
+      padding: 12px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0;
+    }
+
+    .field input {
+      border: 0;
+      outline: none;
+      background: transparent;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    .label {
+      margin: 8px 0 4px 0;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .primary-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: #06326a;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .ghost-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(6, 50, 106, 0.12);
+      background: #fff;
+      color: #06326a;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .small-note {
+      font-size: 13px;
+      color: #666;
+      margin-top: 8px;
+    }
+
+    footer.bottom-nav .nav-link {
+      text-decoration: none;
+      color: #06326a;
+    }
+
+    footer.bottom-nav .nav-link.active {
+      color: #06326a;
+    }
 
     /* page scroll / container sizing */
-    html,body{height:100%}
-    body{margin:0;padding-bottom:80px; overflow-y:auto; -webkit-font-smoothing:antialiased;}
-    .container{width:94%; max-width:920px; margin:12px auto; padding:0 12px; box-sizing:border-box;}
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      margin: 0;
+      padding-bottom: 80px;
+      overflow-y: auto;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      width: 94%;
+      max-width: 920px;
+      margin: 12px auto;
+      padding: 0 12px;
+      box-sizing: border-box;
+    }
 
     /* desktop/mobile spacing */
-    @media(max-width:420px){
-      .card { padding:14px; }
-      .field input { font-size:15px; }
-      .tab-btn { padding:12px; font-size:14px; }
+    @media(max-width:420px) {
+      .card {
+        padding: 14px;
+      }
+
+      .field input {
+        font-size: 15px;
+      }
+
+      .tab-btn {
+        padding: 12px;
+        font-size: 14px;
+      }
     }
   </style>
 </head>
+
 <body>
 
   <!-- App header + back button -->
   <header class="app-header" style="position:sticky;top:0;z-index:50; display:flex; align-items:center;">
-    <button id="backBtn" aria-label="Back" 
+    <button id="backBtn" aria-label="Back"
       style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:10px; margin-left:0;">
       ←
     </button>
@@ -106,7 +210,8 @@
           <input id="bankMobile" class="field" style="padding:10px;" placeholder="Enter mobile/number" />
         </div>
 
-        <button id="bindBankBtn" class="ghost-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+        <button id="bindBankBtn" class="ghost-btn"
+          style="display:flex;align-items:center;justify-content:center;gap:8px;">
           <span>⚙</span> Bind Bank Card
         </button>
       </div>
@@ -117,6 +222,14 @@
       <button id="submitBtn" class="primary-btn" style="display:block;">Submit</button>
     </div>
 
+    <!-- History Section -->
+    <div class="card" id="historyCard">
+      <div class="label">Withdrawal History</div>
+      <div id="historyList" style="margin-top:10px;">
+        <div style="text-align:center;color:#666;font-size:13px;">Loading...</div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Bottom nav -->
@@ -124,23 +237,11 @@
     <a href="home.html" class="nav-link">Plan</a>
     <a href="share.html" class="nav-link">Share</a>
     <a href="team.html" class="nav-link">Team</a>
-    <a href="my.html" class="nav-link">My</a>
+    <a href="profile.html" class="nav-link">My</a>
   </footer>
 
+  <script src="script.js"></script>
   <script>
-    /* ====== small compatibility wrappers (use your project's functions if present) ====== */
-    const USER_KEY = "lp_users_v1";
-    const SESSION_KEY = "lp_session_v1";
-    const WITHDRAW_KEY = "lp_withdraw_requests_v1";
-
-    const readUsers = window.readUsers || function(){
-      try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); } catch(e){ return []; }
-    };
-    const writeUsers = window.writeUsers || function(u){ localStorage.setItem(USER_KEY, JSON.stringify(u || [])); };
-    const getSession = window.getSession || function(){ try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); } catch(e){ return null; } };
-    const readWithdrawRequests = window.readWithdrawRequests || function(){ try { return JSON.parse(localStorage.getItem(WITHDRAW_KEY) || "[]"); } catch(e){ return []; } };
-    const writeWithdrawRequests = window.writeWithdrawRequests || function(list){ localStorage.setItem(WITHDRAW_KEY, JSON.stringify(list || [])); };
-
     /* ====== DOM refs ====== */
     const backBtn = document.getElementById('backBtn');
     const rchTab = document.getElementById('rchTab');
@@ -155,171 +256,169 @@
     const bankIFSC = document.getElementById('bankIFSC');
     const bankAccount = document.getElementById('bankAccount');
     const bankMobile = document.getElementById('bankMobile');
+    const historyList = document.getElementById('historyList');
 
-    /* ====== navigation helpers ====== */
-    function safeNavigate(url) {
-      if (/^(https?:)?\/\//.test(url)) { window.location.href = url; return; }
-      fetch(url, { method: 'HEAD' }).then(res => {
-        if (res.ok) window.location.href = url;
-        else alert('Page not available: ' + url);
-      }).catch(() => {
-        try { window.location.href = url; } catch(e) { alert('Unable to open: ' + url); }
+    /* ====== Navigation ====== */
+    backBtn.addEventListener('click', () => { if (history.length > 1) history.back(); else window.location.href = 'home.html'; });
+    rchTab.addEventListener('click', () => window.location.href = 'recharge.html');
+    bindBankBtn.addEventListener('click', () => saveBankDetails(true)); // just save
+
+    /* ====== Load Data ====== */
+    async function loadData() {
+      try {
+        const fetchFn = window.apiFetch || fetch;
+        const res = await fetchFn('/api/auth/me');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.user) {
+            balanceText.textContent = "₹ " + (data.user.wallet || 0).toFixed(2);
+
+            if (data.user.bankDetails) {
+              bankName.value = data.user.bankDetails.name || ""; // Real Name
+              bankIFSC.value = data.user.bankDetails.ifsc || "";
+              bankAccount.value = data.user.bankDetails.account || "";
+              // bankMobile not in schema, using phone or ignoring
+              bankMobile.value = data.user.phone || "";
+            }
+          }
+        }
+        loadHistory();
+      } catch (e) {
+        console.error('Load data error', e);
+      }
+    }
+
+    async function loadHistory() {
+      try {
+        const fetchFn = window.apiFetch || fetch;
+        const res = await fetchFn('/api/withdraws/my');
+        if (res.ok) {
+          const data = await res.json();
+          renderHistory(data.withdraws || []);
+        }
+      } catch (e) {
+        console.error('Load history error', e);
+        historyList.innerHTML = '<div style="text-align:center;color:red;font-size:13px;">Failed to load history</div>';
+      }
+    }
+
+    function renderHistory(list) {
+      if (list.length === 0) {
+        historyList.innerHTML = '<div style="text-align:center;color:#999;font-size:13px;">No withdrawals yet</div>';
+        return;
+      }
+      historyList.innerHTML = '';
+      list.forEach(w => {
+        const item = document.createElement('div');
+        item.style.padding = '10px';
+        item.style.borderBottom = '1px solid #eee';
+        item.style.display = 'flex';
+        item.style.justifyContent = 'space-between';
+        item.style.fontSize = '14px';
+
+        const statusColor = w.status === 'approved' ? 'green' : (w.status === 'rejected' ? 'red' : 'orange');
+
+        item.innerHTML = `
+          <div>
+            <div style="font-weight:600;">₹ ${w.amount}</div>
+            <div style="font-size:12px;color:#666;">${new Date(w.createdAt).toLocaleDateString()}</div>
+          </div>
+          <div style="color:${statusColor};font-weight:600;text-transform:capitalize;">
+            ${w.status}
+          </div>
+        `;
+        historyList.appendChild(item);
       });
     }
-    backBtn.addEventListener('click', () => { if (history.length > 1) history.back(); else safeNavigate('home.html'); });
-    rchTab.addEventListener('click', () => safeNavigate('recharge.html'));
-    bindBankBtn.addEventListener('click', () => safeNavigate('bindbank.html'));
-    document.querySelectorAll('footer.bottom-nav .nav-link').forEach(a => {
-      a.addEventListener('click', function (e) { e.preventDefault(); safeNavigate(a.getAttribute('href')); });
-    });
 
-    /* ====== UI helpers ====== */
-    function updateWithdrawLabel(){ const val = Number(amountInput.value) || 0; withdrawBtn.textContent = 'Withdraw ' + val; }
+    /* ====== Actions ====== */
+    async function saveBankDetails(showMsg = false) {
+      const name = bankName.value.trim();
+      const code = bankIFSC.value.trim();
+      const acc = bankAccount.value.trim();
 
-    function loadUserBankAndBalanceToUI(){
-      const session = getSession();
-      const phone = session ? session.phone : null;
-      const users = readUsers();
-      const user = users.find(u => u.phone === phone);
-      if(user){
-        balanceText.textContent = "₹ " + (user.wallet || 0).toFixed(2);
-        bankName.value = user.bankName || "";
-        bankIFSC.value = user.bankIFSC || "";
-        bankAccount.value = user.bankAccount || "";
-        bankMobile.value = user.bankMobile || "";
-      } else {
-        balanceText.textContent = "₹ 0.00";
+      if (!name || !code || !acc) {
+        alert('Please fill all bank details (Name, IFSC, Account)');
+        return false;
+      }
+
+      try {
+        const fetchFn = window.apiFetch || fetch;
+        const res = await fetchFn('/api/auth/bank', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name,
+            ifsc: code,
+            account: acc,
+            bankName: 'Unknown' // Schema requires it, but UI doesn't have it. Sending placeholder.
+          })
+        });
+
+        if (res.ok) {
+          if (showMsg) alert('Bank details saved');
+          return true;
+        } else {
+          const d = await res.json();
+          alert('Error saving bank details: ' + d.message);
+          return false;
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Network error saving bank details');
+        return false;
       }
     }
 
-    /* ====== Save bank details into user object ====== */
-    function saveBankDetails(){
-      const session = getSession();
-      if(!session || !session.phone){ alert("Please login to bind bank details."); return false; }
-      const users = readUsers();
-      const idx = users.findIndex(u => u.phone === session.phone);
-      if(idx === -1){ alert("User not found."); return false; }
-      users[idx].bankName = bankName.value.trim();
-      users[idx].bankIFSC = bankIFSC.value.trim();
-      users[idx].bankAccount = bankAccount.value.trim();
-      users[idx].bankMobile = bankMobile.value.trim();
-      writeUsers(users);
-      return true;
+    async function handleWithdraw() {
+      const amount = Number(amountInput.value);
+      const pass = withdrawPass.value.trim();
+
+      if (!amount || amount <= 0) { alert('Enter valid amount'); return; }
+      if (!pass) { alert('Enter withdrawal password'); return; }
+
+      // Save bank details first (implicit)
+      const bankSaved = await saveBankDetails();
+      if (!bankSaved) return;
+
+      if (!confirm(`Confirm withdrawal of ₹ ${amount}?`)) return;
+
+      try {
+        const fetchFn = window.apiFetch || fetch;
+        const res = await fetchFn('/api/withdraws/request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount, withdrawPass: pass })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert('Withdrawal requested successfully!');
+          amountInput.value = '';
+          withdrawPass.value = '';
+          loadData(); // refresh balance and history
+        } else {
+          alert('Withdrawal failed: ' + data.message);
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Network error');
+      }
     }
 
-    /* ====== Withdraw logic with new behaviour:
-         - If user.withdrawPass is empty, first entered password will be saved (after confirm)
-         - Otherwise validate as before
-         - Request created and stored; wallet not deducted until admin approves
-    ====== */
-    withdrawBtn.addEventListener('click', () => {
-      const amount = Number(amountInput.value) || 0;
-      let pass = withdrawPass.value.trim();
+    withdrawBtn.addEventListener('click', handleWithdraw);
+    submitBtn.addEventListener('click', handleWithdraw);
 
-      if (amount <= 0) return alert('Enter an amount greater than 0.');
-      if (!pass) return alert('Enter withdrawal password.');
-
-      const session = getSession();
-      if(!session || !session.phone) return alert('Please login first.');
-
-      const users = readUsers();
-      const idx = users.findIndex(x => x.phone === session.phone);
-      if(idx === -1) return alert('User not found.');
-
-      const u = users[idx];
-
-      // If user has no withdrawPass set, save this one after confirmation
-      if(!u.withdrawPass || u.withdrawPass === ""){
-        if(!confirm("You don't have a withdrawal password set. Do you want to set the entered password as your withdrawal password?")) return;
-        u.withdrawPass = pass;
-        writeUsers(users);
-      }
-
-      // now validate
-      if(pass !== (u.withdrawPass || "")) {
-        return alert("Invalid withdrawal password.");
-      }
-
-      if(amount > (u.wallet || 0)) return alert('Invalid amount or insufficient funds.');
-
-      const reqs = readWithdrawRequests();
-      const id = "wr-" + Date.now() + "-" + Math.floor(Math.random()*900+100);
-      const req = { id, phone: u.phone, amount, status: "pending", createdAt: Date.now(), processedAt: null, processedBy: null, note: "" };
-      reqs.unshift(req);
-      writeWithdrawRequests(reqs);
-
-      alert("Withdrawal request placed for ₹" + amount + ". It will be processed by admin.");
-      amountInput.value = "";
-      withdrawPass.value = "";
-      updateWithdrawLabel();
-      loadUserBankAndBalanceToUI();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    /* ====== Submit button behavior ======
-       Save bank details; if user had no withdrawPass, set it from the provided input (after confirmation).
-       Create withdraw request (same as Withdraw). Submit is now below bank details.
-    ====== */
-    submitBtn.addEventListener('click', () => {
-      // first save bank details
-      if (!saveBankDetails()) return;
-      loadUserBankAndBalanceToUI();
-
-      const amount = Number(amountInput.value) || 0;
-      let pass = withdrawPass.value.trim();
-
-      if (amount <= 0) { alert("Enter amount before submitting."); amountInput.focus(); return; }
-      if (!pass) { alert("Enter withdrawal password."); withdrawPass.focus(); return; }
-
-      const session = getSession();
-      if(!session || !session.phone) { alert("Please login first."); return; }
-
-      const users = readUsers();
-      const idx = users.findIndex(u => u.phone === session.phone);
-      if(idx === -1) return alert("User not found.");
-      const user = users[idx];
-
-      if(!user.withdrawPass || user.withdrawPass === ""){
-        if(!confirm("You have no withdrawal password. Save entered password as withdrawal password?")) return;
-        user.withdrawPass = pass;
-        writeUsers(users);
-      }
-
-      if(pass !== (user.withdrawPass || "")) return alert("Invalid withdrawal password.");
-      if(amount > (user.wallet || 0)) return alert("Insufficient wallet balance.");
-
-      const reqs = readWithdrawRequests();
-      const id = "wr-" + Date.now() + "-" + Math.floor(Math.random()*900+100);
-      const req = { id, phone: user.phone, amount, status: "pending", createdAt: Date.now(), processedAt: null, processedBy: null, note: "" };
-      reqs.unshift(req);
-      writeWithdrawRequests(reqs);
-
-      alert("Bank details saved & withdrawal request submitted for ₹" + amount);
-      amountInput.value = "";
-      withdrawPass.value = "";
-      updateWithdrawLabel();
-      loadUserBankAndBalanceToUI();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    /* ====== Bind bank button: only saves bank details ====== */
-    document.getElementById('bindBankBtn').addEventListener('click', () => {
-      if(saveBankDetails()){
-        alert("Bank details saved.");
-        loadUserBankAndBalanceToUI();
-        const rect = document.getElementById('withdrawCard').getBoundingClientRect();
-        const offset = window.pageYOffset + rect.top - 80;
-        window.scrollTo({ top: offset, behavior: 'smooth' });
-      }
-    });
-
-    /* ====== Initial load ====== */
+    /* ====== Init ====== */
+    function updateWithdrawLabel() { const val = Number(amountInput.value) || 0; withdrawBtn.textContent = 'Withdraw ' + val; }
     amountInput.addEventListener('input', updateWithdrawLabel);
+
     document.addEventListener('DOMContentLoaded', () => {
-      loadUserBankAndBalanceToUI();
+      loadData();
       updateWithdrawLabel();
     });
-  </script>
 
+  </script>
 </body>
+
 </html>

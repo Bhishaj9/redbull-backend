@@ -4,49 +4,82 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dashboard - Red Bull</title>
+  <title>Stats Dashboard - Red Bull</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .stat-card {
+      background: #fff;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-val {
+      font-size: 20px;
+      font-weight: 700;
+      color: #06326a;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .tx-item {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tx-item:last-child {
+      border-bottom: none;
+    }
+  </style>
 </head>
 
 <body>
 
   <header class="app-header">
-    <div class="title">Dashboard</div>
-    <div class="wallet" id="walletDisplayDashboard">Wallet: ₹0</div>
+    <button id="backBtn" style="background:none;border:none;color:#fff;font-size:22px;margin-right:10px;">←</button>
+    <div class="title">Statistics</div>
   </header>
 
   <div class="container">
-    <!-- Add item form -->
-    <section class="card">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <input id="newItemTitle" type="text" placeholder="Item title (e.g. Red Bull Plan)"
-          style="flex:2;padding:10px;border-radius:8px;border:1px solid #ddd;">
-        <input id="newItemPrice" type="number" placeholder="Price (₹)"
-          style="width:120px;padding:10px;border-radius:8px;border:1px solid #ddd;">
-        <input id="newItemDaily" type="number" placeholder="Daily"
-          style="width:120px;padding:10px;border-radius:8px;border:1px solid #ddd;">
-        <input id="newItemImg" type="text" placeholder="Image path (images/redbull.png)"
-          style="flex:1;padding:10px;border-radius:8px;border:1px solid #ddd;">
-        <button class="primary" id="addItemBtn" style="width:140px;">Add Item</button>
+
+    <!-- Stats Grid -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+      <div class="stat-card" style="display:block;">
+        <div class="stat-val" id="totalAssets">₹ 0</div>
+        <div class="stat-label">Total Assets</div>
       </div>
-      <p class="small" style="margin-top:8px">Tip: provide `images/yourimage.png` or leave empty to use default.</p>
-    </section>
+      <div class="stat-card" style="display:block;">
+        <div class="stat-val" id="totalWithdraw">₹ 0</div>
+        <div class="stat-label">Total Withdrawn</div>
+      </div>
+      <div class="stat-card" style="display:block;">
+        <div class="stat-val" id="teamSize">0</div>
+        <div class="stat-label">Team Size</div>
+      </div>
+      <div class="stat-card" style="display:block;">
+        <div class="stat-val" id="activePlans">0</div>
+        <div class="stat-label">Active Plans</div>
+      </div>
+    </div>
 
-    <!-- Filters (optional simple) -->
-    <section class="card" style="display:flex;gap:10px;align-items:center;">
-      <label style="font-weight:600;margin-right:6px">Sort:</label>
-      <select id="sortSelect" style="padding:8px;border-radius:8px;border:1px solid #ddd">
-        <option value="new">Newest</option>
-        <option value="price_low">Price low→high</option>
-        <option value="price_high">Price high→low</option>
-      </select>
-    </section>
+    <!-- Recent Transactions -->
+    <div class="card">
+      <div class="label" style="margin-bottom:10px;">Recent Transactions</div>
+      <div id="txList">
+        <div style="text-align:center;padding:20px;color:#999;">Loading...</div>
+      </div>
+    </div>
 
-    <!-- Dashboard list -->
-    <section id="dashboardList" class="plans-list"></section>
-
-    <!-- loader indicator -->
-    <div id="loader" style="text-align:center;padding:18px;color:#666;display:none">Loading more items...</div>
   </div>
 
   <footer class="bottom-nav">
@@ -57,7 +90,94 @@
   </footer>
 
   <script src="script.js"></script>
-  <script src="dashboard.js"></script>
+  <script>
+    document.getElementById('backBtn').addEventListener('click', () => {
+      if (history.length > 1) history.back();
+      else window.location.href = 'profile.html';
+    });
+
+    async function loadStats() {
+      try {
+        const fetchFn = window.apiFetch || fetch;
+
+        // 1. Get User Data (Assets, Plans, Purchases)
+        const resMe = await fetchFn('/api/auth/me');
+        const dataMe = await resMe.json();
+        const user = dataMe.user || {};
+
+        // 2. Get Team Data
+        const resTeam = await fetchFn('/api/auth/team');
+        const dataTeam = await resTeam.json();
+        const team = dataTeam.team || { level1: { size: 0 } };
+
+        // 3. Get Withdrawals
+        const resWith = await fetchFn('/api/withdraws/my');
+        const dataWith = await resWith.json();
+        const withdraws = dataWith.withdraws || [];
+
+        // Update UI
+        document.getElementById('totalAssets').textContent = '₹ ' + (user.wallet || 0).toFixed(2);
+        document.getElementById('teamSize').textContent = team.level1.size || 0;
+        document.getElementById('activePlans').textContent = (user.plans || []).length;
+
+        // Calculate Total Withdrawn (approved only)
+        const totalW = withdraws
+          .filter(w => w.status === 'approved')
+          .reduce((sum, w) => sum + (w.amount || 0), 0);
+        document.getElementById('totalWithdraw').textContent = '₹ ' + totalW.toFixed(2);
+
+        // Combine Transactions
+        const purchases = (user.purchases || []).map(p => ({
+          type: p.type === 'recharge' ? 'Recharge' : 'Plan Purchase',
+          amount: p.price,
+          date: new Date(p.createdAt),
+          status: 'Success',
+          color: 'green'
+        }));
+
+        const withdrawalTxs = withdraws.map(w => ({
+          type: 'Withdrawal',
+          amount: w.amount,
+          date: new Date(w.createdAt),
+          status: w.status,
+          color: w.status === 'approved' ? 'green' : (w.status === 'rejected' ? 'red' : 'orange')
+        }));
+
+        const allTxs = [...purchases, ...withdrawalTxs].sort((a, b) => b.date - a.date);
+
+        renderTxs(allTxs);
+
+      } catch (e) {
+        console.error('Stats load error', e);
+      }
+    }
+
+    function renderTxs(list) {
+      const el = document.getElementById('txList');
+      if (list.length === 0) {
+        el.innerHTML = '<div style="text-align:center;padding:20px;color:#999;">No transactions found</div>';
+        return;
+      }
+      el.innerHTML = '';
+      list.forEach(tx => {
+        const div = document.createElement('div');
+        div.className = 'tx-item';
+        div.innerHTML = `
+          <div>
+            <div style="font-weight:600;font-size:14px;">${tx.type}</div>
+            <div style="font-size:12px;color:#888;">${tx.date.toLocaleDateString()}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:700;font-size:14px;">₹ ${tx.amount}</div>
+            <div style="font-size:12px;color:${tx.color};text-transform:capitalize;">${tx.status}</div>
+          </div>
+        `;
+        el.appendChild(div);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadStats);
+  </script>
 </body>
 
 </html>

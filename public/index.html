@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -26,7 +27,7 @@
       background: white;
       padding: 26px 24px;
       border-radius: 18px;
-      box-shadow: 0 16px 34px rgba(0,0,0,0.18);
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.18);
       z-index: 99;
       box-sizing: border-box;
     }
@@ -71,8 +72,15 @@
       box-sizing: border-box;
     }
 
-    .input-wrap.phone { padding-left: 8px; }
-    .input-wrap .country { font-weight:600; margin-right:6px; }
+    .input-wrap.phone {
+      padding-left: 8px;
+    }
+
+    .input-wrap .country {
+      font-weight: 600;
+      margin-right: 6px;
+    }
+
     .input-wrap input {
       border: none;
       outline: none;
@@ -93,7 +101,7 @@
       padding: 12px;
       border-radius: 10px;
       border: none;
-      background: linear-gradient(180deg,#0b3d91,#06307a);
+      background: linear-gradient(180deg, #0b3d91, #06307a);
       color: white;
       font-weight: 700;
       font-size: 16px;
@@ -101,7 +109,12 @@
       margin-top: 6px;
     }
 
-    .small.center { text-align:center; color:#666; margin-top:12px; font-size:13px; }
+    .small.center {
+      text-align: center;
+      color: #666;
+      margin-top: 12px;
+      font-size: 13px;
+    }
   </style>
 </head>
 
@@ -164,8 +177,9 @@
 
   <!-- Razorpay -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <!-- Main Script -->
+  <script src="script.js"></script>
 
-  <!-- SIMPLE LOGIN-REGISTER SCRIPT -->
   <script>
     const $ = id => document.getElementById(id);
 
@@ -195,14 +209,8 @@
       });
     });
 
-    // Local storage helpers
-    function readUsers() { return JSON.parse(localStorage.getItem("lp_users_v1") || "[]"); }
-    function writeUsers(u) { localStorage.setItem("lp_users_v1", JSON.stringify(u)); }
-    function findUser(phone) { return readUsers().find(x => x.phone === phone); }
-    function setSession(phone) { localStorage.setItem("lp_session_v1", JSON.stringify({ phone })); }
-
-    // Register — improved checks and clear inputs on success
-    $("registerBtn").addEventListener("click", () => {
+    // Register
+    $("registerBtn").addEventListener("click", async () => {
       const phone = ($("regPhone").value || "").trim();
       const pass = ($("regPass").value || "");
       const pass2 = ($("regPass2").value || "");
@@ -222,29 +230,17 @@
         return;
       }
 
-      const users = readUsers();
-      if (users.find(u => u.phone === phone)) {
-        alert("Phone already registered. Please login.");
-        document.querySelector('.tab[data-target="login"]').click();
-        return;
+      const res = await window.register(phone, pass, invite, wp);
+      if (res.ok) {
+        alert("Registered successfully! Redirecting...");
+        window.location.href = "home.html";
+      } else {
+        alert(res.data?.message || "Registration failed");
       }
-
-      users.push({ phone, pass, withdrawPass: wp, wallet: 0, plans: [], inviteCode: invite });
-      writeUsers(users);
-
-      // clear registration fields
-      $("regPhone").value = "";
-      $("regPass").value = "";
-      $("regPass2").value = "";
-      $("regWithdraw").value = "";
-      $("regInvite").value = "f6c05036";
-
-      alert("Registered successfully (local). Please login now.");
-      document.querySelector('.tab[data-target="login"]').click();
     });
 
-    // Login — after successful login redirect to home (popup will appear on home)
-    $("loginBtn").addEventListener("click", () => {
+    // Login
+    $("loginBtn").addEventListener("click", async () => {
       const phone = ($("loginPhone").value || "").trim();
       const pass = ($("loginPass").value || "").trim();
 
@@ -253,23 +249,22 @@
         return;
       }
 
+      // Admin check
       if (phone === "admin" && pass === "admin@123") {
-        window.location.href = "admin.html";
+        // We still allow this for quick access, but real admin auth is on admin-login.html
+        window.location.href = "admin-login.html";
         return;
       }
 
-      const user = findUser(phone);
-      if (!user || user.pass !== pass) {
-        alert("Invalid credentials. Please check your phone and password.");
-        return;
+      const res = await window.login(phone, pass);
+      if (res.ok) {
+        window.location.href = "home.html";
+      } else {
+        alert(res.data?.message || "Invalid credentials");
       }
-
-      setSession(phone);
-
-      // Redirect to home — popup will be handled by home.html on load
-      window.location.href = "home.html";
     });
   </script>
 
 </body>
+
 </html>

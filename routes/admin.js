@@ -158,10 +158,55 @@ router.post('/withdraws/:id/process', adminAuth, async (req, res) => {
   }
 });
 
-// view purchases
+// list purchases
 router.get('/purchases', adminAuth, async (req, res) => {
   const list = await Purchase.find().sort({ createdAt: -1 }).limit(200);
   res.json({ list });
+});
+
+// list recharges
+const Recharge = require('../models/Recharge');
+router.get('/recharges', adminAuth, async (req, res) => {
+  try {
+    const list = await Recharge.find().sort({ createdAt: -1 }).limit(100);
+    res.json({ list });
+  } catch (e) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// process recharge
+router.post('/recharges/:id/process', adminAuth, async (req, res) => {
+  const { id } = req.params;
+  const { action } = req.body; // 'approve' or 'decline'
+
+  try {
+    const r = await Recharge.findById(id);
+    if (!r) return res.status(404).json({ message: 'Not found' });
+    if (r.status !== 'pending') return res.status(400).json({ message: 'Already processed' });
+
+    if (action === 'approve') {
+      r.status = 'approved';
+      r.processedAt = new Date();
+      await r.save();
+
+      // Credit user wallet
+      const u = await User.findById(r.userId);
+      if (u) {
+        u.wallet = (u.wallet || 0) + r.amount;
+        await u.save();
+      }
+      return res.json({ message: 'Recharge approved and wallet credited' });
+    } else {
+      r.status = 'declined';
+      r.processedAt = new Date();
+      await r.save();
+      return res.json({ message: 'Recharge declined' });
+    }
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 module.exports = router;

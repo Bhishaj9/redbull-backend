@@ -5,266 +5,224 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Login - Redbull</title>
-
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* KEEP login-page layout exactly as you had it */
+    /* Combined styles from both files — kept rules and adjusted selectors */
+    :root {
+      --accent-1: #0b3d91;
+      --accent-2: #0b3d91;
+      --muted: #f6f4fb;
+      --card: #fff;
+      --text: #1a1430
+    }
+
     body.login-page {
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      background: url("assets/images/bg.jpg") center/cover no-repeat fixed;
+      background: linear-gradient(180deg, #faf7ff 0%, #f4f2fb 100%);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
       margin: 0;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      -moz-osx-font-smoothing: grayscale
+    }
+
+    body.login-page.bg-image {
+      background: url("assets/images/bg.jpg") center/cover no-repeat fixed
     }
 
     .center-card {
-      width: 92%;
-      max-width: 420px !important;
-      background: white;
-      padding: 26px 24px;
-      border-radius: 18px;
-      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.18);
-      z-index: 99;
-      box-sizing: border-box;
+      width: 420px;
+      max-width: 94%;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 24px 60px rgba(99, 33, 147, 0.06);
+      padding: 18px;
+      position: relative;
+      box-sizing: border-box
+    }
+
+    @media(max-width:520px) {
+      .center-card {
+        width: 92%;
+        padding: 14px
+      }
+
+      .country {
+        display: none
+      }
     }
 
     .tabs {
       display: flex;
+      gap: 8px;
       justify-content: center;
-      gap: 24px;
-      margin-bottom: 16px;
+      margin-bottom: 12px
     }
 
-    .tab {
-      font-size: 20px;
-      background: transparent;
-      border: none;
+    .tabs .tab {
+      padding: 8px 12px;
+      border-radius: 10px;
       cursor: pointer;
+      border: 1px solid transparent;
+      background: transparent;
       font-weight: 700;
-      color: #333;
-      padding-bottom: 6px;
+      color: var(--accent-2);
+      font-size: 20px;
+      padding-bottom: 6px
     }
 
-    .tab.active {
-      border-bottom: 3px solid #0b3d91;
+    .tabs .tab.active {
+      background: linear-gradient(90deg, var(--accent-2), var(--accent-1));
+      color: #fff;
+      box-shadow: 0 12px 30px rgba(99, 33, 147, 0.08);
+      border-bottom: 3px solid #0b3d91
     }
 
     .form {
       display: none;
+      padding: 6px 4px
     }
 
     .form.active {
-      display: block;
+      display: block
     }
 
     .input-wrap {
+      margin-bottom: 10px;
+      position: relative;
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 12px;
       border: 1px solid #e6e6e6;
       padding: 10px 12px;
       border-radius: 10px;
       box-sizing: border-box;
+      background: #fbf9ff
     }
 
     .input-wrap.phone {
-      padding-left: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding-left: 8px
     }
 
-    .input-wrap .country {
-      font-weight: 600;
-      margin-right: 6px;
+    .country {
+      background: linear-gradient(90deg, var(--accent-2), var(--accent-1));
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 15px
     }
 
-    .input-wrap input {
-      border: none;
-      outline: none;
+    input {
       width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      background: transparent;
       font-size: 15px;
+      outline: none;
+      border: none
     }
 
     .eye {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      border: 0;
       background: transparent;
-      border: none;
       cursor: pointer;
-      font-weight: 700;
-      padding: 0 6px;
+      padding: 8px;
+      color: var(--accent-2);
+      font-weight: 700
     }
 
     .primary.full {
       width: 100%;
       padding: 12px;
-      border-radius: 10px;
-      border: none;
-      background: linear-gradient(180deg, #0b3d91, #06307a);
-      color: white;
-      font-weight: 700;
-      font-size: 16px;
+      border-radius: 12px;
+      background: linear-gradient(90deg, var(--accent-2), var(--accent-1));
+      color: #fff;
+      border: 0;
+      font-weight: 800;
       cursor: pointer;
-      margin-top: 6px;
+      box-shadow: 0 12px 30px rgba(99, 33, 147, 0.08);
+      margin-top: 6px
+    }
+
+    .primary.full.alt {
+      background: linear-gradient(180deg, #0b3d91, #06307a)
     }
 
     .small.center {
       text-align: center;
-      color: #666;
+      color: #6b5b7a;
       margin-top: 12px;
-      font-size: 13px;
+      font-size: 13px
     }
   </style>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 
-<body class="login-page">
+<body class="login-page bg-image" aria-live="polite">
+  <div class="bg" aria-hidden="true"></div>
 
-  <main class="center-card">
-
-    <!-- TABS -->
-    <div class="tabs">
-      <button class="tab active" data-target="login">Login</button>
-      <button class="tab" data-target="register">Register</button>
+  <main class="center-card" role="main">
+    <div class="tabs" role="tablist" aria-label="Auth tabs">
+      <button class="tab active" data-target="login" aria-selected="true">Login</button>
+      <button class="tab" data-target="register" aria-selected="false">Register</button>
     </div>
 
-    <!-- LOGIN -->
-    <section id="login" class="form active">
+    <section id="login" class="form active" aria-hidden="false">
       <div class="input-wrap phone">
         <span class="country">+91</span>
-        <input id="loginPhone" type="tel" placeholder="Enter phone number" />
+        <input id="loginPhone" type="tel" inputmode="tel" placeholder="Enter phone number" aria-label="Phone number" />
       </div>
 
       <div class="input-wrap">
-        <input id="loginPass" type="password" placeholder="Enter password" />
-        <button class="eye" type="button">Show</button>
+        <input id="loginPass" type="password" placeholder="Enter password" aria-label="Password" />
+        <button class="eye" type="button" aria-label="Toggle password visibility">Show</button>
       </div>
 
-      <button class="primary full" id="loginBtn" type="button">Login</button>
+      <button class="primary full alt" id="loginBtn" type="button">Login</button>
       <p class="small center">Invite code: <strong>f6c05036</strong></p>
     </section>
 
-    <!-- REGISTER -->
-    <section id="register" class="form">
+    <section id="register" class="form" hidden aria-hidden="true">
       <div class="input-wrap phone">
         <span class="country">+91</span>
-        <input id="regPhone" type="tel" placeholder="Enter phone number" />
+        <input id="regPhone" type="tel" inputmode="tel" placeholder="Enter phone number" aria-label="Register phone" />
       </div>
 
       <div class="input-wrap">
-        <input id="regPass" type="password" placeholder="Enter password" />
-        <button class="eye" type="button">Show</button>
+        <input id="regPass" type="password" placeholder="Enter password" aria-label="Password" />
+        <button class="eye" type="button" aria-label="Toggle password visibility">Show</button>
       </div>
 
       <div class="input-wrap">
-        <input id="regPass2" type="password" placeholder="Confirm password" />
-        <button class="eye" type="button">Show</button>
+        <input id="regPass2" type="password" placeholder="Confirm password" aria-label="Confirm password" />
+        <button class="eye" type="button" aria-label="Toggle password visibility">Show</button>
       </div>
 
       <div class="input-wrap">
-        <input id="regWithdraw" type="password" placeholder="Enter withdrawal password" />
-        <button class="eye" type="button">Show</button>
+        <input id="regWithdraw" type="password" placeholder="Enter withdrawal password"
+          aria-label="Withdrawal password" />
+        <button class="eye" type="button" aria-label="Toggle password visibility">Show</button>
       </div>
 
       <div class="input-wrap">
-        <input id="regInvite" type="text" placeholder="Invite code (optional)" value="f6c05036" />
+        <input id="regInvite" type="text" placeholder="Invite code (optional)" value="f6c05036"
+          aria-label="Invite code" />
       </div>
 
       <button class="primary full" id="registerBtn" type="button">Register</button>
     </section>
-
   </main>
 
-  <!-- Razorpay -->
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <!-- Main Script -->
   <script src="script.js"></script>
-
-  <script>
-    const $ = id => document.getElementById(id);
-
-    // Tabs
-    document.querySelectorAll(".tab").forEach(tab => {
-      tab.addEventListener("click", () => {
-        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-        tab.classList.add("active");
-
-        const target = tab.dataset.target;
-        document.querySelectorAll(".form").forEach(f => {
-          f.classList.toggle("active", f.id === target);
-        });
-      });
-    });
-
-    // Eye toggle
-    document.querySelectorAll(".eye").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const input = btn.previousElementSibling && btn.previousElementSibling.tagName === "INPUT"
-          ? btn.previousElementSibling
-          : btn.parentElement.querySelector("input");
-        if (!input) return;
-        const isPass = input.type === "password";
-        input.type = isPass ? "text" : "password";
-        btn.textContent = isPass ? "Hide" : "Show";
-      });
-    });
-
-    // Register
-    $("registerBtn").addEventListener("click", async () => {
-      const phone = ($("regPhone").value || "").trim();
-      const pass = ($("regPass").value || "");
-      const pass2 = ($("regPass2").value || "");
-      const wp = ($("regWithdraw").value || "").trim();
-      const invite = ($("regInvite").value || "").trim() || "f6c05036";
-
-      if (!phone || !pass || !pass2 || !wp) {
-        alert("Please fill all fields.");
-        return;
-      }
-      if (pass !== pass2) {
-        alert("Passwords do not match.");
-        return;
-      }
-      if (phone.length < 6) {
-        alert("Enter a valid phone number.");
-        return;
-      }
-
-      const res = await window.register(phone, pass, invite, wp);
-      if (res.ok) {
-        alert("Registered successfully! Redirecting...");
-        window.location.href = "home.html";
-      } else {
-        alert(res.data?.message || "Registration failed");
-      }
-    });
-
-    // Login
-    $("loginBtn").addEventListener("click", async () => {
-      const phone = ($("loginPhone").value || "").trim();
-      const pass = ($("loginPass").value || "").trim();
-
-      if (!phone || !pass) {
-        alert("Enter login details.");
-        return;
-      }
-
-      // Admin check
-      if (phone === "admin" && pass === "admin@123") {
-        // We still allow this for quick access, but real admin auth is on admin-login.html
-        window.location.href = "admin-login.html";
-        return;
-      }
-
-      const res = await window.login(phone, pass);
-      if (res.ok) {
-        window.location.href = "home.html";
-      } else {
-        alert(res.data?.message || "Invalid credentials");
-      }
-    });
-  </script>
-
 </body>
 
 </html>
